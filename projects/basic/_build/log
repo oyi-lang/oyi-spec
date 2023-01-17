@@ -1,0 +1,5 @@
+# dune init project basic_ocaml
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Workspace root: /Users/z0ltan/dev/oyi-lang/oyi-manifesto/projects/basic
+# Auto-detected concurrency: 8

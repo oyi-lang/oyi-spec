@@ -12,9 +12,9 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
   * Arithmetic expression parser evaluator [Rust] [ ]
 
-  * BASIC interpreter [OCaml] [ ]
+  * BASIC interpreter [OCaml] [x]
 
-  * BASIC interpreter [Rust] [ ]
+  * BASIC interpreter [Rust] [x]
 
   * [Lisp interpreter](https://www.lwh.jp/lisp/)[Ocaml] [ ]
 
@@ -57,9 +57,15 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
 ### OCaml and F#/ML specific
 
+  * [The Definition of Standard ML - SML 90](https://github.com/SMLFamily/sml90) [Milner et al] [ ]
+
+  * [The Definition of Standard ML - SML 97](https://github.com/SMLFamily/sml97) [Milner et al] [ ]
+
+  * [The ML Family](https://smlfamily.github.io/) [ ]
+
   * [Caml papers](https://caml.inria.fr/about/papers.en.html) [ ]
 
-  * [The Early History of F#](https://dl.acm.org/doi/pdf/10.1145/3386325) [ ]
+  * [The Early History of F#](https://dl.acm.org/doi/pdf/10.1145/3386325) [x]
 
 ### JVM specific
 
