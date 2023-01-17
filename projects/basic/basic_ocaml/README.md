@@ -13,9 +13,9 @@ Support for a very restricted subset of the BASIC language.
 
   * `IF expression THEN line` - if the evaluation of `expression` is `true` then continue execution as line number `line`.
 
-  * `GOTO line`
+  * `GOTO line` - continue execution at the given line number.
 
-  * `REM single line comment`
+  * `REM comment` - a single-line comment - ignore the whole line.
 
 
 ## EBNF grammar
@@ -25,11 +25,25 @@ Support for a very restricted subset of the BASIC language.
 
   BINARY_OP ::= + | - | * | / | % | = | <> | < | <= | > | >= | & | '|'
 
-  EXPRESSION ::= 
+  EXPRESSION ::= integer
+              | variable
+              | "string"
+              | UNARY_OP EXPRESSION
+              | EXPRESSION BINARY_OP EXPRESSION
+              | '(' EXPRESSION ')''
 
+  COMMAND ::= REM string
+            | GOTO integer
+            | INPUT variable
+            | PRINT EXPRESSION
+            | LET variable = EXPRESSION
+            | IF EXPRESSION THEN integer
 
+  LINE ::= integer COMMAND
 
+  PROGRAM ::= LINE | LINE PROGRAM
 
+  PHRASE ::= LINE | RUN | LIST | END
 
 ```
 

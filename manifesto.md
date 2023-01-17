@@ -15,6 +15,8 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
   * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
+  * [Triangle compiler (Ocaml) and Bytecode VM (Rust)](https://www.dcs.gla.ac.uk/~daw/books/PLPJ/) [ ]
+
   * [MinCaml (Ocaml)](projects/mincaml/mincaml_ocaml) [  ]
 
   * [MinCaml (Rust)](projects/mincaml/mincaml_ocaml) [  ]

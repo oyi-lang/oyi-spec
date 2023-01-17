@@ -1,0 +1,4 @@
+(executable
+ (public_name triangle)
+ (name main)
+ (libraries triangle))
