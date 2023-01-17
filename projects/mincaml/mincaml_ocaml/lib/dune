@@ -1,0 +1,2 @@
+(library
+ (name mincaml_ocaml))

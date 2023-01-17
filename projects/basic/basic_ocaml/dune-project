@@ -7,9 +7,9 @@
 (source
  (github username/reponame))
 
-(authors "Author Name")
+(authors "Timmy Jose")
 
-(maintainers "Maintainer Name")
+(maintainers "Timmy Jose")
 
 (license LICENSE)
 
@@ -17,8 +17,8 @@
 
 (package
  (name basic_ocaml)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "A MiniBASIC interpreter")
+ (description "An interpreter in OCaml for a restricted subset of BASIC")
  (depends ocaml dune)
  (tags
   (topics "to describe" your project)))

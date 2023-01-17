@@ -1,0 +1,4 @@
+(executable
+ (public_name kaleidoscope_ocaml)
+ (name main)
+ (libraries kaleidoscope_ocaml))

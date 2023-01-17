@@ -1,4 +1,5 @@
 (executable
- (public_name basic_ocaml)
+ (public_name basic)
  (name main)
- (libraries basic_ocaml))
+ (libraries basic_ocaml)
+ (flags (:standard -warn-error "-unused-open")))

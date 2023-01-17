@@ -1,2 +1,3 @@
 (library
- (name basic_ocaml))
+ (name basic_ocaml)
+ (modules ast pp lexer parser eval))

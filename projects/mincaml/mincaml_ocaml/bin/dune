@@ -1,0 +1,4 @@
+(executable
+ (public_name mincaml_ocaml)
+ (name main)
+ (libraries mincaml_ocaml))

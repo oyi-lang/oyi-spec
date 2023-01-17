@@ -1,0 +1,4 @@
+(executable
+ (public_name lwhlisp_ocaml)
+ (name main)
+ (libraries lwhlisp_ocaml))

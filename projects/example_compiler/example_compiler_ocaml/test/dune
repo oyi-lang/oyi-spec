@@ -1,0 +1,2 @@
+(test
+ (name example_compiler_ocaml))

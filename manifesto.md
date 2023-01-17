@@ -5,40 +5,35 @@ The JVM is the *first tier* for Oyi. Other platforms (native, LLVM, C et al) are
 Note: Not everything in this document has to be completed before starting the Oyi project itself, but the intent is to document not only the essentials for Oyi, but also for
 a continuing edificational journey into the world of Compilers (PLT covered elsewhere).
 
-
 ## Projects
 
-  * Arithmetic expression parser evaluator [OCaml] [ ]
+  * [BASIC interpreter (OCaml)](projects/basic/basic_ocaml) [x]
 
-  * Arithmetic expression parser evaluator [Rust] [ ]
+  * [BASIC interpreter (Rust)](projects/basic/basic_rs) [x]
 
-  * BASIC interpreter [OCaml] [x]
+  * [Lisp interpreter (Ocaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
-  * BASIC interpreter [Rust] [x]
+  * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
-  * [Lisp interpreter](https://www.lwh.jp/lisp/)[Ocaml] [ ]
+  * [MinCaml (Ocaml)](projects/mincaml/mincaml_ocaml) [  ]
 
-  * [Lisp interpreter](https://www.lwh.jp/lisp/) [Rust] [ ]
+  * [MinCaml (Rust)](projects/mincaml/mincaml_ocaml) [  ]
 
-  * [MinCaml](https://esumii.github.io/min-caml/index-e.html) [OCaml] [  ]
+  * [CLEmitter library (OCaml)] [ ]
 
-  * [MinCaml](https://esumii.github.io/min-caml/index-e.html) [Rust] [  ]
+  * [CLEmitter library (Rust)] [ ]
 
-  * CLEmitter library [OCaml] [ ]
+  * [J-- (OCaml)](projects/jminusminus/jminusminus_ocaml) [ ]
 
-  * CLEmitter library [Rust] [ ]
+  * [J-- (Rust)](projects/jminusminus/jminusminus_rs) [ ]
 
-  * [J--](https://www.cs.umb.edu/j--/) [OCaml] [ ]
+  * [Example Compiler (Ocaml)](projects/example_compiler/example_compiler_ocaml) [ ]
 
-  * [J--](https://www.cs.umb.edu/j--/) [Rust] [ ]
+  * [Example Compiler (Rust)](projects/example_compiler/example_compiler_rs) [ ]
 
-  * [Example Compiler](https://github.com/SOwens/example-compiler) [Ocaml] [ ]
+  * [Kaleidoscope (OCaml)](projects/kaleidoscope/kaleidoscope_ocaml) [ ]
 
-  * [Example Compiler](https://github.com/SOwens/example-compiler) [Rust] [ ]
-
-  * [Kaleidoscope](https://releases.llvm.org/12.0.1/docs/tutorial/index.html) [OCaml] [ ]
-
-  * [Kaleidoscope](https://releases.llvm.org/12.0.1/docs/tutorial/index.html) [Rust] [ ]
+  * [Kaleidoscope (Rust)](projects/kaleidoscope/kaleidoscope_rs) [ ]
 
   
 ## Resources
@@ -55,6 +50,10 @@ a continuing edificational journey into the world of Compilers (PLT covered else
   
   * [ATAPL](https://www.cis.upenn.edu/~bcpierce/attapl/) [ ]
 
+  * [SRTPs in F#](https://learn.microsoft.com/en-us/dotnet/fsharp/language-reference/generics/statically-resolved-type-parameters)
+
+  * [Active Patterns in F#](https://dl.acm.org/doi/10.1145/1291151.1291159)
+
 ### OCaml and F#/ML specific
 
   * [The Definition of Standard ML - SML 90](https://github.com/SMLFamily/sml90) [Milner et al] [ ]
@@ -69,9 +68,9 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
 ### JVM specific
 
-  * [The JVM specification](https://docs.oracle.com/javase/specs/jls/se19/html/index.html) [ ]
+  * [Java Virtual Machine](https://archive.org/details/javavirtualmachi0000meye) [Troy Downing and Jon Meyer] [x]
 
-  * Java Virtual Machine by Downing and Meyer [ ]
+  * [The JVM specification](https://docs.oracle.com/javase/specs/jls/se19/html/index.html) [ ]
 
   * [Tail Call Elimination of the Java Virtual Machine](https://www.researchgate.net/publication/222659379_Tail_Call_Elimination_on_the_Java_Virtual_Machine/fulltext/0e5fab00f0c41c4932e2ff21/Tail-Call-Elimination-on-the-Java-Virtual-Machine.pdf) [Schinz and Odersky] [ ]
 

@@ -1,0 +1,4 @@
+(executable
+ (public_name example_compiler_ocaml)
+ (name main)
+ (libraries example_compiler_ocaml))
