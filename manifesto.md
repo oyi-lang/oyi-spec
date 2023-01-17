@@ -11,6 +11,8 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
   * [BASIC interpreter (Rust)](projects/basic/basic_rs) [x]
 
+  * [JVM internals using Jasmin](projects/jvm-with-jasmin) [x]
+
   * [Lisp interpreter (Ocaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
   * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_ocaml) [ ]
