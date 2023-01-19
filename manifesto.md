@@ -17,6 +17,10 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
   * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
+  * [Pascal compiler (OCaml)](https://www.cs.sjsu.edu/~mak/archive/CMPE152/index.html)[ ]
+
+  * [Pascal compiler (Rust)](https://www.cs.sjsu.edu/~mak/archive/CMPE152/index.html)[ ]
+
   * [Triangle compiler (OCaml) and Bytecode VM (Rust)](https://www.dcs.gla.ac.uk/~daw/books/PLPJ/) [ ]
 
   * [MinCaml (Ocaml)](projects/mincaml/mincaml_ocaml) [  ]
