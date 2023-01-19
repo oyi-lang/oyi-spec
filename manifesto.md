@@ -7,21 +7,25 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
 ## Projects
 
-  * [BASIC interpreter (OCaml)](projects/basic/basic_ocaml) [x]
+  * [BASIC interpreter (OCaml)](projects/basic/basic_ocaml) [ ]
 
-  * [BASIC interpreter (Rust)](projects/basic/basic_rs) [x]
+  * [BASIC interpreter (Rust)](projects/basic/basic_rs) [ ]
 
   * [JVM internals using Jasmin](projects/jvm-with-jasmin) [x]
 
-  * [Lisp interpreter (Ocaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
+  * [Lisp interpreter (OCaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
   * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_ocaml) [ ]
 
-  * [Triangle compiler (Ocaml) and Bytecode VM (Rust)](https://www.dcs.gla.ac.uk/~daw/books/PLPJ/) [ ]
+  * [Triangle compiler (OCaml) and Bytecode VM (Rust)](https://www.dcs.gla.ac.uk/~daw/books/PLPJ/) [ ]
 
   * [MinCaml (Ocaml)](projects/mincaml/mincaml_ocaml) [  ]
 
   * [MinCaml (Rust)](projects/mincaml/mincaml_ocaml) [  ]
+
+  * [Phoron - JVM Bytecode Assembler (OCaml)](projects/phoron/phoron_ocaml) [ ] 
+
+  * [Phoron - JVM Bytecode Assembler (Rust)](projects/phoron/phoron_rs) [ ] 
 
   * [CLEmitter library (OCaml)] [ ]
 
@@ -31,7 +35,7 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
   * [J-- (Rust)](projects/jminusminus/jminusminus_rs) [ ]
 
-  * [Example Compiler (Ocaml)](projects/example_compiler/example_compiler_ocaml) [ ]
+  * [Example Compiler (OCaml)](projects/example_compiler/example_compiler_ocaml) [ ]
 
   * [Example Compiler (Rust)](projects/example_compiler/example_compiler_rs) [ ]
 
