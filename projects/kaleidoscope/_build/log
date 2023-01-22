@@ -1,6 +1,0 @@
-# dune init project kaleidoscope_ocaml
-# OCAMLPARAM: unset
-# Shared cache: disabled
-# Workspace root:
-# /Users/z0ltan/dev/oyi-lang/oyi-manifesto/projects/kaleidoscope
-# Auto-detected concurrency: 8

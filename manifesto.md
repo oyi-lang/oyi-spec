@@ -1,53 +1,38 @@
 Oyi is intended as a modern ML, stylistically and spiritually in the vein of OCaml, for the JVM. In a nutshell, F#-like on the JVM. 
 
-The JVM is the *first tier* for Oyi. Other platforms (native, LLVM, C et al) are *second tier*. 
+The JVM is the *first tier* for Oyi. Other platforms (native, LLVM, C et al) are *second tier*. Second tier platforms may or may not be supported (at all).
 
 Note: Not everything in this document has to be completed before starting the Oyi project itself, but the intent is to document not only the essentials for Oyi, but also for
 a continuing edificational journey into the world of Compilers (PLT covered elsewhere).
 
 ## Projects
 
-  * [BASIC interpreter (OCaml)](projects/basic/basic_ocaml) [ ]
-
-  * [BASIC interpreter (Rust)](projects/basic/basic_rs) [ ]
-
   * [JVM internals using Jasmin](projects/jvm-with-jasmin) [x]
 
+  * [BASIC interpreter (OCaml)](projects/basic/basic_ocaml) [ ]
+  * [BASIC interpreter (Rust)](projects/basic/basic_rs) [ ]
+
+  * [SimPL (OCaml)](projects/simpl/simpl_ocaml) [ ]
+  * [SimPL (Rust)](projects/simpl/simpl_rs) [ ]
+
+  * [MiniML (OCaml)](projects/miniml/miniml_ocaml) [ ]
+  * [MiniML (Rust)](projects/miniml/miniml_rs) [ ]
+
   * [Lisp interpreter (OCaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
-
-  * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_ocaml) [ ]
-
-  * [Pascal compiler (OCaml)](https://www.cs.sjsu.edu/~mak/archive/CMPE152/index.html)[ ]
-
-  * [Pascal compiler (Rust)](https://www.cs.sjsu.edu/~mak/archive/CMPE152/index.html)[ ]
-
-  * [Triangle compiler (OCaml) and Bytecode VM (Rust)](https://www.dcs.gla.ac.uk/~daw/books/PLPJ/) [ ]
-
-  * [MinCaml (Ocaml)](projects/mincaml/mincaml_ocaml) [  ]
-
-  * [MinCaml (Rust)](projects/mincaml/mincaml_ocaml) [  ]
+  * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_rs) [ ]
 
   * [Phoron - JVM Bytecode Assembler (OCaml)](projects/phoron/phoron_ocaml) [ ] 
-
   * [Phoron - JVM Bytecode Assembler (Rust)](projects/phoron/phoron_rs) [ ] 
 
-  * [CLEmitter library (OCaml)] [ ]
+  * [Ephi - Pascal compiler (OCaml)](projects/ephi/ephi_ocaml)[ ]
+  * [Ephi - Pascal compiler (Rust)](projects/ephi/ephi_rs)[ ]
 
-  * [CLEmitter library (Rust)] [ ]
+  * [Triangle compiler (OCaml)](projects/triangle/triangle_ocaml) [ ]
+  * [Triangle compiler (Rust)](projects/triangle/triangle_rs) [ ]
 
-  * [J-- (OCaml)](projects/jminusminus/jminusminus_ocaml) [ ]
+  * [MinCaml] (projects/mincaml/) [ ]
+  * [MinCaml] (projects/mincaml/) [ ]
 
-  * [J-- (Rust)](projects/jminusminus/jminusminus_rs) [ ]
-
-  * [Example Compiler (OCaml)](projects/example_compiler/example_compiler_ocaml) [ ]
-
-  * [Example Compiler (Rust)](projects/example_compiler/example_compiler_rs) [ ]
-
-  * [Kaleidoscope (OCaml)](projects/kaleidoscope/kaleidoscope_ocaml) [ ]
-
-  * [Kaleidoscope (Rust)](projects/kaleidoscope/kaleidoscope_rs) [ ]
-
-  
 ## Resources
 
 ### Tooling

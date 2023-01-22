@@ -1,4 +1,0 @@
-(executable
- (public_name jminusminus_ocaml)
- (name main)
- (libraries jminusminus_ocaml))
