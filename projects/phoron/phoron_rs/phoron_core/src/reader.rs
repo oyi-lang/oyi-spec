@@ -1,6 +1,8 @@
 //! A module for reading Java (JVM) types from a raw byte stream
 
 use crate::error::ReadError;
+use crate::HasBeBytes;
+
 use std::{
     convert::From,
     default::Default,
