@@ -48,7 +48,7 @@ impl HasBeBytes<8> for u64 {
     }
 }
 
-mod reader {
+pub mod reader {
     //! A module for reading Java (JVM) types from a raw byte stream
 
     use super::HasBeBytes;
@@ -60,7 +60,7 @@ mod reader {
 
     /// The `Reader` is used to read bytes off of a stream
     /// over raw ``class` file objects.
-    struct Reader<R: Read> {
+    pub(crate) struct Reader<R: Read> {
         reader: R,
     }
 
@@ -139,7 +139,7 @@ mod reader {
     }
 }
 
-mod writer {
+pub mod writer {
     //! A module for writing Java (JVM) types to a byte stream.
 
     use super::HasBeBytes;
@@ -149,7 +149,7 @@ mod writer {
     pub type WriteResult<T> = Result<T, WriteError>;
 
     /// The `Writer` is used to write the bytes of a class file to a stream
-    struct Writer<'a, W: Write> {
+    pub(crate) struct Writer<'a, W: Write> {
         writer: &'a mut W,
     }
 

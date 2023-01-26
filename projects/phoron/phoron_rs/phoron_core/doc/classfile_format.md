@@ -1,4 +1,4 @@
-Source: The Java Virtual Machine Specification (version 1.0.2) (ISBN: 0-201-63452-X).
+Source: The Java Virtual Machine Specification (version 2.0.2) (ISBN: 0-201-63452-X).
 
 ## ClassFile
 
@@ -88,7 +88,7 @@ CONSTANT_InterfaceMethodref_info {
   u2 name_and_type_index;
 }
 
-CONSTANT_String {
+CONSTANT_String_info {
   u1 tag;
   u2 string_index;
 }
@@ -196,13 +196,13 @@ attribute_info {
 ```
 SourceFile_attribute {
   u2 attribute_name_index;
-  u2 attribute_length;
+  u4 attribute_length;
   u2 sourcefile_index;
 }
 
 ConstantValue_attribute {
   u2 attribute_name_index;
-  u2 attribute_length;
+  u4 attribute_length;
   u2 constantvalue_index;
 }
 

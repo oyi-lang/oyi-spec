@@ -57,23 +57,47 @@ impl From<io::Error> for WriteError {
 }
 
 #[derive(Debug)]
-pub struct SerializationError;
+pub struct SerializeError {
+    message: String,
+}
 
-impl fmt::Display for SerializationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", "SerializationError")
+impl SerializeError {
+    pub fn new(message: String) -> Self {
+        SerializeError { message }
     }
 }
 
-impl Error for SerializationError {}
+impl fmt::Display for SerializeError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl Error for SerializeError {}
 
 #[derive(Debug)]
-pub struct DeserializationError;
+pub struct DeserializeError {
+    message: String,
+}
 
-impl fmt::Display for DeserializationError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", "DeserializationError")
+impl DeserializeError {
+    pub fn new(message: String) -> Self {
+        DeserializeError { message }
     }
 }
 
-impl Error for DeserializationError {}
+impl fmt::Display for DeserializeError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.message)
+    }
+}
+
+impl Error for DeserializeError {}
+
+impl From<ReadError> for DeserializeError {
+    fn from(read_err: ReadError) -> Self {
+        DeserializeError {
+            message: read_err.to_string(),
+        }
+    }
+}
