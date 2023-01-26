@@ -27,22 +27,37 @@ impl<R: Read> Deserializer<R> {
     fn deserialize_attributes(
         &mut self,
         attributes_count: u16,
+        constant_pool: &[CpInfo],
     ) -> DeserializeResult<Vec<AttributeInfo>> {
         let mut attributes = Vec::new();
-        for _ in 0..attributes_count {}
+
+        for _ in 0..attributes_count {
+            let attribute_name_index = self.reader.read_unsigned_short()? - 1;
+            let attribute_length = self.reader.read_unsigned_int()?;
+
+            // todo
+            for _ in 0..attribute_length {
+                let _ = self.reader.read_unsigned_byte()?;
+            }
+        }
+
         Ok(attributes)
     }
 
     /// Deserialize the fields of the class file.
-    fn deserialize_fields(&mut self, fields_count: u16) -> DeserializeResult<Vec<FieldInfo>> {
+    fn deserialize_fields(
+        &mut self,
+        fields_count: u16,
+        constant_pool: &[CpInfo],
+    ) -> DeserializeResult<Vec<FieldInfo>> {
         let mut fields = Vec::new();
         for _ in 0..fields_count {
             let access_flags = self.reader.read_unsigned_short()?;
-            let name_index = self.reader.read_unsigned_short()?;
-            let descriptor_index = self.reader.read_unsigned_short()?;
+            let name_index = self.reader.read_unsigned_short()? - 1;
+            let descriptor_index = self.reader.read_unsigned_short()? - 1;
             let attributes_count = self.reader.read_unsigned_short()?;
 
-            let attributes = self.deserialize_attributes(attributes_count)?;
+            let attributes = self.deserialize_attributes(attributes_count, constant_pool)?;
 
             fields.push(FieldInfo {
                 access_flags,
@@ -57,16 +72,20 @@ impl<R: Read> Deserializer<R> {
     }
 
     /// Deserialize the methods of the class file.
-    fn deserialize_methods(&mut self, methods_count: u16) -> DeserializeResult<Vec<MethodInfo>> {
+    fn deserialize_methods(
+        &mut self,
+        methods_count: u16,
+        constant_pool: &[CpInfo],
+    ) -> DeserializeResult<Vec<MethodInfo>> {
         let mut methods = Vec::new();
 
         for _ in 0..methods_count {
             let access_flags = self.reader.read_unsigned_short()?;
-            let name_index = self.reader.read_unsigned_short()?;
-            let descriptor_index = self.reader.read_unsigned_short()?;
+            let name_index = self.reader.read_unsigned_short()? - 1;
+            let descriptor_index = self.reader.read_unsigned_short()? - 1;
             let attributes_count = self.reader.read_unsigned_short()?;
 
-            let attributes = self.deserialize_attributes(attributes_count)?;
+            let attributes = self.deserialize_attributes(attributes_count, constant_pool)?;
 
             methods.push(MethodInfo {
                 access_flags,
@@ -74,7 +93,7 @@ impl<R: Read> Deserializer<R> {
                 descriptor_index,
                 attributes_count,
                 attributes,
-            })
+            });
         }
 
         Ok(methods)
@@ -92,8 +111,8 @@ impl<R: Read> Deserializer<R> {
 
             match tag {
                 CONSTANT_METHODREF => {
-                    let class_index = self.reader.read_unsigned_short()?;
-                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    let class_index = self.reader.read_unsigned_short()? - 1;
+                    let name_and_type_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantMethodrefInfo {
                         tag,
                         class_index,
@@ -102,13 +121,13 @@ impl<R: Read> Deserializer<R> {
                 }
 
                 CONSTANT_CLASS => {
-                    let name_index = self.reader.read_unsigned_short()?;
+                    let name_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantClassInfo { tag, name_index });
                 }
 
                 CONSTANT_FIELDREF => {
-                    let class_index = self.reader.read_unsigned_short()?;
-                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    let class_index = self.reader.read_unsigned_short()? - 1;
+                    let name_and_type_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantFieldrefInfo {
                         tag,
                         class_index,
@@ -117,8 +136,8 @@ impl<R: Read> Deserializer<R> {
                 }
 
                 CONSTANT_INTERFACEMETHODREF => {
-                    let class_index = self.reader.read_unsigned_short()?;
-                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    let class_index = self.reader.read_unsigned_short()? - 1;
+                    let name_and_type_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantInterfaceMethodrefInfo {
                         tag,
                         class_index,
@@ -127,7 +146,7 @@ impl<R: Read> Deserializer<R> {
                 }
 
                 CONSTANT_STRING => {
-                    let string_index = self.reader.read_unsigned_short()?;
+                    let string_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantStringInfo { tag, string_index });
                 }
 
@@ -162,8 +181,8 @@ impl<R: Read> Deserializer<R> {
                 }
 
                 CONSTANT_NAMEANDTYPE => {
-                    let name_index = self.reader.read_unsigned_short()?;
-                    let descriptor_index = self.reader.read_unsigned_short()?;
+                    let name_index = self.reader.read_unsigned_short()? - 1;
+                    let descriptor_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantNameAndTypeInfo {
                         tag,
                         name_index,
@@ -181,7 +200,7 @@ impl<R: Read> Deserializer<R> {
                     constant_pool.push(CpInfo::ConstantUtf8Info { tag, length, bytes });
                 }
 
-                _ => unimplemented!(),
+                _ => unreachable!(),
             }
         }
 
@@ -199,8 +218,8 @@ impl<R: Read> Deserializer<R> {
         let mut constant_pool = self.deserialize_constant_pool(constant_pool_count)?;
 
         let access_flags = self.reader.read_unsigned_short()?;
-        let this_class = self.reader.read_unsigned_short()?;
-        let super_class = self.reader.read_unsigned_short()?;
+        let this_class = self.reader.read_unsigned_short()? - 1;
+        let super_class = self.reader.read_unsigned_short()? - 1;
 
         let interfaces_count = self.reader.read_unsigned_short()?;
         let mut interfaces = Vec::with_capacity(interfaces_count as usize);
@@ -210,15 +229,15 @@ impl<R: Read> Deserializer<R> {
 
         // Fields
         let fields_count = self.reader.read_unsigned_short()?;
-        let fields = self.deserialize_fields(fields_count)?;
+        let fields = self.deserialize_fields(fields_count, &constant_pool)?;
 
         // methods
         let methods_count = self.reader.read_unsigned_short()?;
-        let methods = self.deserialize_methods(methods_count)?;
+        let methods = self.deserialize_methods(methods_count, &constant_pool)?;
 
         // class attributes
         let attributes_count = self.reader.read_unsigned_short()?;
-        let attributes = self.deserialize_attributes(attributes_count)?;
+        let attributes = self.deserialize_attributes(attributes_count, &constant_pool)?;
 
         Ok(ClassFile {
             magic,

@@ -84,6 +84,15 @@ pub enum AttributeInfo {
     },
 }
 
+mod predefined_attributes {
+    pub const SOURCE_fILE: &'static str = "SourceFile";
+    pub const CONSTANT_VALUE: &'static str = "ConstantValue";
+    pub const CODE: &'static str = "Code";
+    pub const EXCEPTIONS: &'static str = "Exceptions";
+    pub const LINE_NUMBER_TABLE: &'static str = "LineNumberTable";
+    pub const LOCAL_VARIABLE_TABLE: &'static str = "LocalVariableTable";
+}
+
 #[derive(Debug)]
 pub struct ExceptionHandler {
     pub start_pc: u16,
