@@ -4,7 +4,8 @@ use crate::{
     error::DeserializeError,
     model::{
         constant_pool::{tags::*, types::CpInfo},
-        AttributeInfo, ClassFile, FieldInfo, MethodInfo,
+        predefined_attributes, AttributeInfo, ClassFile, ExceptionHandler, FieldInfo, LineNumber,
+        LocalVariable, MethodInfo,
     },
     rw::reader::Reader,
 };
@@ -35,9 +36,142 @@ impl<R: Read> Deserializer<R> {
             let attribute_name_index = self.reader.read_unsigned_short()? - 1;
             let attribute_length = self.reader.read_unsigned_int()?;
 
-            // todo
-            for _ in 0..attribute_length {
-                let _ = self.reader.read_unsigned_byte()?;
+            match &constant_pool[attribute_name_index as usize] {
+                CpInfo::ConstantUtf8Info { tag, length, bytes } => {
+                    match String::from_utf8_lossy(bytes).into_owned().as_str() {
+                        predefined_attributes::SOURCE_fILE => {}
+
+                        predefined_attributes::CONSTANT_VALUE => {
+                            let constantvalue_index = self.reader.read_unsigned_short()? - 1;
+                            attributes.push(AttributeInfo::ConstantValue {
+                                attribute_name_index,
+                                attribute_length,
+                                constantvalue_index,
+                            });
+                        }
+
+                        predefined_attributes::CODE => {
+                            let max_stack = self.reader.read_unsigned_short()?;
+                            let max_locals = self.reader.read_unsigned_short()?;
+
+                            let code_length = self.reader.read_unsigned_int()?;
+                            let mut code = Vec::new();
+                            for _ in 0..code_length {
+                                code.push(self.reader.read_unsigned_byte()?);
+                            }
+
+                            let exception_table_length = self.reader.read_unsigned_short()?;
+                            let mut exception_table = Vec::new();
+                            for _ in 0..exception_table_length {
+                                let start_pc = self.reader.read_unsigned_short()?;
+                                let end_pc = self.reader.read_unsigned_short()?;
+                                let handler_pc = self.reader.read_unsigned_short()?;
+                                let mut catch_type = self.reader.read_unsigned_short()?;
+
+                                if catch_type != 0 {
+                                    catch_type -= 1;
+                                }
+
+                                exception_table.push(ExceptionHandler {
+                                    start_pc,
+                                    end_pc,
+                                    handler_pc,
+                                    catch_type,
+                                });
+                            }
+
+                            let code_attributes_count = self.reader.read_unsigned_short()?;
+                            let code_attributes =
+                                self.deserialize_attributes(attributes_count, constant_pool)?;
+                            attributes.push(AttributeInfo::Code {
+                                attribute_name_index,
+                                attribute_length,
+                                max_stack,
+                                max_locals,
+                                code_length,
+                                code,
+                                exception_table_length,
+                                exception_table,
+                                code_attributes_count,
+                                code_attributes,
+                            });
+                        }
+
+                        predefined_attributes::EXCEPTIONS => {
+                            let number_of_exceptions = self.reader.read_unsigned_short()?;
+                            let mut exception_index_table =
+                                Vec::with_capacity(number_of_exceptions as usize);
+
+                            for _ in 0..number_of_exceptions {
+                                exception_index_table.push(self.reader.read_unsigned_short()?);
+                            }
+                            attributes.push(AttributeInfo::Exceptions {
+                                attribute_name_index,
+                                attribute_length,
+                                number_of_exceptions,
+                                exception_index_table,
+                            });
+                        }
+
+                        predefined_attributes::LINE_NUMBER_TABLE => {
+                            let line_number_table_length = self.reader.read_unsigned_short()?;
+                            let mut line_number_table =
+                                Vec::with_capacity(line_number_table_length as usize);
+
+                            for _ in 0..line_number_table_length {
+                                let start_pc = self.reader.read_unsigned_short()?;
+                                let line_number = self.reader.read_unsigned_short()?;
+                                line_number_table.push(LineNumber {
+                                    start_pc,
+                                    line_number,
+                                });
+                            }
+
+                            attributes.push(AttributeInfo::LineNumberTable {
+                                attribute_name_index,
+                                attribute_length,
+                                line_number_table_length,
+                                line_number_table,
+                            });
+                        }
+
+                        predefined_attributes::LOCAL_VARIABLE_TABLE => {
+                            let local_variable_table_length = self.reader.read_unsigned_short()?;
+                            let mut local_variable_table =
+                                Vec::with_capacity(local_variable_table_length as usize);
+
+                            for _ in 0..local_variable_table_length {
+                                let start_pc = self.reader.read_unsigned_short()?;
+                                let length = self.reader.read_unsigned_short()?;
+                                let name_index = self.reader.read_unsigned_short()? - 1;
+                                let descriptor_index = self.reader.read_unsigned_short()? - 1;
+                                let index = self.reader.read_unsigned_short()?;
+
+                                local_variable_table.push(LocalVariable {
+                                    start_pc,
+                                    length,
+                                    name_index,
+                                    descriptor_index,
+                                    index,
+                                });
+                            }
+
+                            attributes.push(AttributeInfo::LocalVariableTable {
+                                attribute_name_index,
+                                attribute_length,
+                                local_variable_table_length,
+                                local_variable_table,
+                            });
+                        }
+                        _ => {
+                            // simply read the bytes and discard for any unknown attributes
+                            for _ in 0..attribute_length {
+                                let _ = self.reader.read_unsigned_byte()?;
+                            }
+                        }
+                    }
+                }
+                _ => unreachable!(),
             }
         }
 
@@ -215,11 +349,17 @@ impl<R: Read> Deserializer<R> {
 
         // Constant Pool
         let constant_pool_count = self.reader.read_unsigned_short()?;
+        assert!(constant_pool_count > 0);
         let mut constant_pool = self.deserialize_constant_pool(constant_pool_count)?;
 
         let access_flags = self.reader.read_unsigned_short()?;
         let this_class = self.reader.read_unsigned_short()? - 1;
-        let super_class = self.reader.read_unsigned_short()? - 1;
+
+        let mut super_class = self.reader.read_unsigned_short()?;
+        // if super_class == 0 then this is ``java.lang.Object``
+        if super_class > 0 {
+            super_class -= 1;
+        }
 
         let interfaces_count = self.reader.read_unsigned_short()?;
         let mut interfaces = Vec::with_capacity(interfaces_count as usize);

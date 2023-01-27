@@ -55,11 +55,12 @@ pub enum AttributeInfo {
         attribute_length: u32,
         max_stack: u16,
         max_locals: u16,
+        code_length: u32,
         code: Vec<u8>,
         exception_table_length: u16,
         exception_table: Vec<ExceptionHandler>,
-        attributes_count: u16,
-        attributes: Vec<AttributeInfo>,
+        code_attributes_count: u16,
+        code_attributes: Vec<AttributeInfo>,
     },
 
     Exceptions {
@@ -70,13 +71,13 @@ pub enum AttributeInfo {
     },
 
     LineNumberTable {
-        attribute_name_and_index: u16,
+        attribute_name_index: u16,
         attribute_length: u32,
         line_number_table_length: u16,
         line_number_table: Vec<LineNumber>,
     },
 
-    LocalVariable {
+    LocalVariableTable {
         attribute_name_index: u16,
         attribute_length: u32,
         local_variable_table_length: u16,
@@ -84,7 +85,7 @@ pub enum AttributeInfo {
     },
 }
 
-mod predefined_attributes {
+pub mod predefined_attributes {
     pub const SOURCE_fILE: &'static str = "SourceFile";
     pub const CONSTANT_VALUE: &'static str = "ConstantValue";
     pub const CODE: &'static str = "Code";
