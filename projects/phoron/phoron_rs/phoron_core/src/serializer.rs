@@ -78,6 +78,9 @@ impl<'a, W: Write> Serializer<'a, W> {
                         }
                         self.writer.write_unsigned_short(catch_type)?;
                     }
+
+                    self.writer.write_unsigned_short(*code_attributes_count)?;
+                    self.serialize_attributes(code_attributes)?;
                 }
 
                 AttributeInfo::Exceptions {
@@ -508,14 +511,13 @@ mod test {
             attributes: vec![AttributeInfo::SourceFile {
                 attribute_name_index: 2,
                 attribute_length: 2,
-                sourcefile_index: 9,
+                sourcefile_index: 8,
             }],
         };
 
         let mut bytes: Vec<u8> = Vec::new();
         let mut serializer = Serializer::new(Writer::new(&mut bytes));
         serializer.serialize(&classfile);
-        println!("{:#2x?}", bytes);
-        //assert_eq!(expected_bytes, bytes);
+        assert_eq!(expected_bytes, &bytes[..]);
     }
 }

@@ -40,7 +40,7 @@ impl<R: Read> Deserializer<R> {
                 CpInfo::ConstantUtf8Info { tag, length, bytes } => {
                     match String::from_utf8_lossy(bytes).into_owned().as_str() {
                         predefined_attributes::SOURCE_FILE => {
-                            let sourcefile_index = self.reader.read_unsigned_short()?;
+                            let sourcefile_index = self.reader.read_unsigned_short()? - 1;
                             attributes.push(AttributeInfo::SourceFile {
                                 attribute_name_index,
                                 attribute_length,
