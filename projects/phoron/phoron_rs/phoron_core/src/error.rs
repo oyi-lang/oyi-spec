@@ -75,6 +75,14 @@ impl fmt::Display for SerializeError {
 
 impl Error for SerializeError {}
 
+impl From<WriteError> for SerializeError {
+    fn from(write_err: WriteError) -> Self {
+        SerializeError {
+            message: write_err.to_string(),
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct DeserializeError {
     message: String,

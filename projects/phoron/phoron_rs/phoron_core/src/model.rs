@@ -86,7 +86,7 @@ pub enum AttributeInfo {
 }
 
 pub mod predefined_attributes {
-    pub const SOURCE_fILE: &'static str = "SourceFile";
+    pub const SOURCE_FILE: &'static str = "SourceFile";
     pub const CONSTANT_VALUE: &'static str = "ConstantValue";
     pub const CODE: &'static str = "Code";
     pub const EXCEPTIONS: &'static str = "Exceptions";

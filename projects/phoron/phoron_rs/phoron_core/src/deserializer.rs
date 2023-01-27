@@ -39,7 +39,14 @@ impl<R: Read> Deserializer<R> {
             match &constant_pool[attribute_name_index as usize] {
                 CpInfo::ConstantUtf8Info { tag, length, bytes } => {
                     match String::from_utf8_lossy(bytes).into_owned().as_str() {
-                        predefined_attributes::SOURCE_fILE => {}
+                        predefined_attributes::SOURCE_FILE => {
+                            let sourcefile_index = self.reader.read_unsigned_short()?;
+                            attributes.push(AttributeInfo::SourceFile {
+                                attribute_name_index,
+                                attribute_length,
+                                sourcefile_index,
+                            });
+                        }
 
                         predefined_attributes::CONSTANT_VALUE => {
                             let constantvalue_index = self.reader.read_unsigned_short()? - 1;
@@ -55,6 +62,7 @@ impl<R: Read> Deserializer<R> {
                             let max_locals = self.reader.read_unsigned_short()?;
 
                             let code_length = self.reader.read_unsigned_int()?;
+                            assert!(code_length > 0);
                             let mut code = Vec::new();
                             for _ in 0..code_length {
                                 code.push(self.reader.read_unsigned_byte()?);
@@ -82,7 +90,7 @@ impl<R: Read> Deserializer<R> {
 
                             let code_attributes_count = self.reader.read_unsigned_short()?;
                             let code_attributes =
-                                self.deserialize_attributes(attributes_count, constant_pool)?;
+                                self.deserialize_attributes(code_attributes_count, constant_pool)?;
                             attributes.push(AttributeInfo::Code {
                                 attribute_name_index,
                                 attribute_length,
@@ -103,7 +111,11 @@ impl<R: Read> Deserializer<R> {
                                 Vec::with_capacity(number_of_exceptions as usize);
 
                             for _ in 0..number_of_exceptions {
-                                exception_index_table.push(self.reader.read_unsigned_short()?);
+                                let mut idx = self.reader.read_unsigned_short()?;
+                                if idx != 0 {
+                                    idx -= 1;
+                                }
+                                exception_index_table.push(idx);
                             }
                             attributes.push(AttributeInfo::Exceptions {
                                 attribute_name_index,
@@ -192,7 +204,6 @@ impl<R: Read> Deserializer<R> {
             let attributes_count = self.reader.read_unsigned_short()?;
 
             let attributes = self.deserialize_attributes(attributes_count, constant_pool)?;
-
             fields.push(FieldInfo {
                 access_flags,
                 name_index,
@@ -220,7 +231,6 @@ impl<R: Read> Deserializer<R> {
             let attributes_count = self.reader.read_unsigned_short()?;
 
             let attributes = self.deserialize_attributes(attributes_count, constant_pool)?;
-
             methods.push(MethodInfo {
                 access_flags,
                 name_index,
@@ -240,7 +250,7 @@ impl<R: Read> Deserializer<R> {
     ) -> DeserializeResult<Vec<CpInfo>> {
         let mut constant_pool = Vec::new();
 
-        for idx in 0..constant_pool_count - 1 {
+        for _ in 0..constant_pool_count - 1 {
             let tag = self.reader.read_unsigned_byte()?;
 
             match tag {
@@ -406,34 +416,31 @@ mod test {
 
     #[test]
     // The byte buffer `buf` corresponds to this disassembled class file:
-    //
-    // ```bash`
-    //   Classfile /Users/z0ltan/dev/oyi-lang/oyi-manifesto/projects/phoron/phoron_rs/phoron_core/Minimal.class
-    //  Last modified 24-Jan-2023; size 259 bytes
-    //  SHA-256 checksum a50a8c17f31dbb5ea4e7d6b919cfa21d7e58a33e235cf516d86533b003f32f82
+    //Classfile /Users/z0ltan/dev/playground/Minimal.class
+    //  Last modified 27-Jan-2023; size 217 bytes
+    //  SHA-256 checksum b590391a0a1f08067e66f237803225d0246d178484e0608543ea4fd12180dc2a
     //  Compiled from "Minimal.java"
     //public class Minimal
-    //  minor version: 0
-    //  major version: 65
+    //  minor version: 3
+    //  major version: 45
     //  flags: (0x0021) ACC_PUBLIC, ACC_SUPER
-    //  this_class: #7                          // Minimal
-    //  super_class: #2                         // java/lang/Object
+    //  this_class: #12                         // Minimal
+    //  super_class: #13                        // java/lang/Object
     //  interfaces: 0, fields: 0, methods: 2, attributes: 1
     //Constant pool:
-    //   #1 = Methodref          #2.#3          // java/lang/Object."<init>":()V
-    //   #2 = Class              #4             // java/lang/Object
-    //   #3 = NameAndType        #5:#6          // "<init>":()V
-    //   #4 = Utf8               java/lang/Object
-    //   #5 = Utf8               <init>
-    //   #6 = Utf8               ()V
-    //   #7 = Class              #8             // Minimal
-    //   #8 = Utf8               Minimal
-    //   #9 = Utf8               Code
-    //  #10 = Utf8               LineNumberTable
-    //  #11 = Utf8               main
-    //  #12 = Utf8               ([Ljava/lang/String;)V
-    //  #13 = Utf8               SourceFile
-    //  #14 = Utf8               Minimal.java
+    //   #1 = Methodref          #13.#7         // java/lang/Object."<init>":()V
+    //   #2 = Utf8               java/lang/Object
+    //   #3 = Utf8               SourceFile
+    //   #4 = Utf8               <init>
+    //   #5 = Utf8               main
+    //   #6 = Utf8               Minimal
+    //   #7 = NameAndType        #4:#11         // "<init>":()V
+    //   #8 = Utf8               Code
+    //   #9 = Utf8               Minimal.java
+    //  #10 = Utf8               ([Ljava/lang/String;)V
+    //  #11 = Utf8               ()V
+    //  #12 = Class              #6             // Minimal
+    //  #13 = Class              #2             // java/lang/Object
     //{
     //  public Minimal();
     //    descriptor: ()V
@@ -443,47 +450,39 @@ mod test {
     //         0: aload_0
     //         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
     //         4: return
-    //      LineNumberTable:
-    //        line 1: 0
     //
     //  public static void main(java.lang.String[]);
     //    descriptor: ([Ljava/lang/String;)V
     //    flags: (0x0009) ACC_PUBLIC, ACC_STATIC
     //    Code:
-    //      stack=0, locals=1, args_size=1
+    //      stack=1, locals=1, args_size=1
     //         0: return
-    //      LineNumberTable:
-    //        line 2: 0
     //}
     //SourceFile: "Minimal.java"
-    //````
     fn test_deserialize_minimal() {
         use std::io::Cursor;
 
         let bytes = [
-            0xca, 0xfe, 0xba, 0xbe, 0x00, 0x00, 0x00, 0x41, 0x00, 0x0f, 0x0a, 0x00, 0x02, 0x00,
-            0x03, 0x07, 0x00, 0x04, 0x0c, 0x00, 0x05, 0x00, 0x06, 0x01, 0x00, 0x10, 0x6a, 0x61,
-            0x76, 0x61, 0x2f, 0x6c, 0x61, 0x6e, 0x67, 0x2f, 0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74,
-            0x01, 0x00, 0x06, 0x3c, 0x69, 0x6e, 0x69, 0x74, 0x3e, 0x01, 0x00, 0x03, 0x28, 0x29,
-            0x56, 0x07, 0x00, 0x08, 0x01, 0x00, 0x07, 0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c,
-            0x01, 0x00, 0x04, 0x43, 0x6f, 0x64, 0x65, 0x01, 0x00, 0x0f, 0x4c, 0x69, 0x6e, 0x65,
-            0x4e, 0x75, 0x6d, 0x62, 0x65, 0x72, 0x54, 0x61, 0x62, 0x6c, 0x65, 0x01, 0x00, 0x04,
-            0x6d, 0x61, 0x69, 0x6e, 0x01, 0x00, 0x16, 0x28, 0x5b, 0x4c, 0x6a, 0x61, 0x76, 0x61,
-            0x2f, 0x6c, 0x61, 0x6e, 0x67, 0x2f, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x3b, 0x29,
-            0x56, 0x01, 0x00, 0x0a, 0x53, 0x6f, 0x75, 0x72, 0x63, 0x65, 0x46, 0x69, 0x6c, 0x65,
-            0x01, 0x00, 0x0c, 0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x2e, 0x6a, 0x61, 0x76,
-            0x61, 0x00, 0x21, 0x00, 0x07, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00,
-            0x01, 0x00, 0x05, 0x00, 0x06, 0x00, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x1d, 0x00,
-            0x01, 0x00, 0x01, 0x00, 0x00, 0x00, 0x05, 0x2a, 0xb7, 0x00, 0x01, 0xb1, 0x00, 0x00,
-            0x00, 0x01, 0x00, 0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01,
-            0x00, 0x09, 0x00, 0x0b, 0x00, 0x0c, 0x00, 0x01, 0x00, 0x09, 0x00, 0x00, 0x00, 0x19,
-            0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0xb1, 0x00, 0x00, 0x00, 0x01, 0x00,
-            0x0a, 0x00, 0x00, 0x00, 0x06, 0x00, 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00,
-            0x0d, 0x00, 0x00, 0x00, 0x02, 0x00, 0x0e,
+            0xca, 0xfe, 0xba, 0xbe, 0x00, 0x03, 0x00, 0x2d, 0x00, 0x0e, 0x0a, 0x00, 0x0d, 0x00,
+            0x07, 0x01, 0x00, 0x10, 0x6a, 0x61, 0x76, 0x61, 0x2f, 0x6c, 0x61, 0x6e, 0x67, 0x2f,
+            0x4f, 0x62, 0x6a, 0x65, 0x63, 0x74, 0x01, 0x00, 0x0a, 0x53, 0x6f, 0x75, 0x72, 0x63,
+            0x65, 0x46, 0x69, 0x6c, 0x65, 0x01, 0x00, 0x06, 0x3c, 0x69, 0x6e, 0x69, 0x74, 0x3e,
+            0x01, 0x00, 0x04, 0x6d, 0x61, 0x69, 0x6e, 0x01, 0x00, 0x07, 0x4d, 0x69, 0x6e, 0x69,
+            0x6d, 0x61, 0x6c, 0x0c, 0x00, 0x04, 0x00, 0x0b, 0x01, 0x00, 0x04, 0x43, 0x6f, 0x64,
+            0x65, 0x01, 0x00, 0x0c, 0x4d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x2e, 0x6a, 0x61,
+            0x76, 0x61, 0x01, 0x00, 0x16, 0x28, 0x5b, 0x4c, 0x6a, 0x61, 0x76, 0x61, 0x2f, 0x6c,
+            0x61, 0x6e, 0x67, 0x2f, 0x53, 0x74, 0x72, 0x69, 0x6e, 0x67, 0x3b, 0x29, 0x56, 0x01,
+            0x00, 0x03, 0x28, 0x29, 0x56, 0x07, 0x00, 0x06, 0x07, 0x00, 0x02, 0x00, 0x21, 0x00,
+            0x0c, 0x00, 0x0d, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0x00, 0x01, 0x00, 0x04, 0x00,
+            0x0b, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x11, 0x00, 0x01, 0x00, 0x01, 0x00,
+            0x00, 0x00, 0x05, 0x2a, 0xb7, 0x00, 0x01, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x09,
+            0x00, 0x05, 0x00, 0x0a, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00, 0x0d, 0x00, 0x01,
+            0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0xb1, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00,
+            0x03, 0x00, 0x00, 0x00, 0x02, 0x00, 0x09,
         ];
 
         let mut deserializer = Deserializer::new(Reader::new(Cursor::new(bytes)));
-        let classfile = deserializer.deserialize();
+        let classfile = deserializer.deserialize().unwrap();
         println!("{:#?}", classfile);
     }
 }
