@@ -7,7 +7,6 @@ homepage = "https://github.com/oyi-lang/oyi-manifesto/tree/master/projects/phoro
 documentation = "https://github.com/oyi-lang/oyi-manifesto/tree/master/projects/phoron/phoron_rs/phoron_core"
 repository = "https://github.com/oyi-lang/oyi-manifesto/tree/master/projects/phoron/phoron_rs/phoron_core"
 readme = "README.md"
-license = "MIT"
 license-file = "LICENSE"
 keywords = ["jvm", "bytecode", "serializer", "deserializer"]
 categories = ["parser-implementations"]
