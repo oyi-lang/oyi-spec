@@ -179,6 +179,8 @@ impl<R: Read> Deserializer<R> {
                         }
                         _ => {
                             // simply read the bytes and discard for any unknown attributes
+                            // for now - look into providing a pluggable way to store and
+                            // query for custom attributes.
                             for _ in 0..attribute_length {
                                 let _ = self.reader.read_unsigned_byte()?;
                             }

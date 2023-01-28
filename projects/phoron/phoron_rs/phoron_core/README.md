@@ -17,6 +17,10 @@ For details on the object representation, see [Object Model](doc/object_model.md
 
 ## Demo
 
+## Planned Features
+
+  - Pluggable support for custom Attributes.
+
 ## LICENCE
 
 See [LICENSE](LICENSE).
