@@ -1,8 +1,15 @@
 [package]
 name = "phoron_asm"
+description = "An Assembler and Disassembler for JVM bytecode"
 version = "0.1.0"
+authors = ["Timmy Jose"]
+homepage = "https://github.com/oyi-lang/oyi-manifesto/tree/master/projects/phoron/phoron_rs/phoron_asm"
+documentation = "https://github.com/oyi-lang/oyi-manifesto/tree/master/projects/phoron/phoron_rs/phoron_asm"
+repository = "https://github.com/oyi-lang/oyi-manifesto/tree/master/projects/phoron/phoron_rs/phoron_asm"
+readme = "README.md"
+license-file = "LICENSE"
+keywords = ["jvm", "bytecode", "assembler", "disassembler"]
+categories = ["compilers", "parser-implementations"]
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
