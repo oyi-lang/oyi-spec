@@ -35,14 +35,14 @@ impl<R: Read> Deserializer<R> {
         let mut attributes = Vec::new();
 
         for _ in 0..attributes_count {
-            let attribute_name_index = self.reader.read_unsigned_short()? - 1;
+            let attribute_name_index = self.reader.read_unsigned_short()?;
             let attribute_length = self.reader.read_unsigned_int()?;
 
             match &constant_pool[attribute_name_index as usize] {
                 CpInfo::ConstantUtf8Info { bytes, .. } => {
                     match String::from_utf8_lossy(bytes).into_owned().as_str() {
                         predefined_attributes::SOURCE_FILE => {
-                            let sourcefile_index = self.reader.read_unsigned_short()? - 1;
+                            let sourcefile_index = self.reader.read_unsigned_short()?;
                             attributes.push(AttributeInfo::SourceFile {
                                 attribute_name_index,
                                 attribute_length,
@@ -51,7 +51,7 @@ impl<R: Read> Deserializer<R> {
                         }
 
                         predefined_attributes::CONSTANT_VALUE => {
-                            let constantvalue_index = self.reader.read_unsigned_short()? - 1;
+                            let constantvalue_index = self.reader.read_unsigned_short()?;
                             attributes.push(AttributeInfo::ConstantValue {
                                 attribute_name_index,
                                 attribute_length,
@@ -157,8 +157,8 @@ impl<R: Read> Deserializer<R> {
                             for _ in 0..local_variable_table_length {
                                 let start_pc = self.reader.read_unsigned_short()?;
                                 let length = self.reader.read_unsigned_short()?;
-                                let name_index = self.reader.read_unsigned_short()? - 1;
-                                let descriptor_index = self.reader.read_unsigned_short()? - 1;
+                                let name_index = self.reader.read_unsigned_short()?;
+                                let descriptor_index = self.reader.read_unsigned_short()?;
                                 let index = self.reader.read_unsigned_short()?;
 
                                 local_variable_table.push(LocalVariable {
@@ -201,8 +201,8 @@ impl<R: Read> Deserializer<R> {
         let mut fields = Vec::new();
         for _ in 0..fields_count {
             let access_flags = self.reader.read_unsigned_short()?;
-            let name_index = self.reader.read_unsigned_short()? - 1;
-            let descriptor_index = self.reader.read_unsigned_short()? - 1;
+            let name_index = self.reader.read_unsigned_short()?;
+            let descriptor_index = self.reader.read_unsigned_short()?;
             let attributes_count = self.reader.read_unsigned_short()?;
 
             let attributes = self.deserialize_attributes(attributes_count, constant_pool)?;
@@ -228,8 +228,8 @@ impl<R: Read> Deserializer<R> {
 
         for _ in 0..methods_count {
             let access_flags = self.reader.read_unsigned_short()?;
-            let name_index = self.reader.read_unsigned_short()? - 1;
-            let descriptor_index = self.reader.read_unsigned_short()? - 1;
+            let name_index = self.reader.read_unsigned_short()?;
+            let descriptor_index = self.reader.read_unsigned_short()?;
             let attributes_count = self.reader.read_unsigned_short()?;
 
             let attributes = self.deserialize_attributes(attributes_count, constant_pool)?;
@@ -250,90 +250,99 @@ impl<R: Read> Deserializer<R> {
         &mut self,
         constant_pool_count: u16,
     ) -> DeserializeResult<Vec<CpInfo>> {
-        let mut constant_pool = Vec::new();
+        let mut constant_pool = vec![CpInfo::default(); constant_pool_count as usize];
+        let mut cp_idx = 1usize;
 
-        for _ in 0..constant_pool_count - 1 {
+        while cp_idx < constant_pool_count as usize {
             let tag = self.reader.read_unsigned_byte()?;
 
             match tag {
+                CONSTANT_INVALID_DEFAULT => unreachable!(),
+
                 CONSTANT_METHOD_REF => {
-                    let class_index = self.reader.read_unsigned_short()? - 1;
-                    let name_and_type_index = self.reader.read_unsigned_short()? - 1;
-                    constant_pool.push(CpInfo::ConstantMethodrefInfo {
+                    let class_index = self.reader.read_unsigned_short()?;
+                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    constant_pool[cp_idx] = CpInfo::ConstantMethodrefInfo {
                         tag,
                         class_index,
                         name_and_type_index,
-                    });
+                    };
                 }
 
                 CONSTANT_CLASS => {
-                    let name_index = self.reader.read_unsigned_short()? - 1;
-                    constant_pool.push(CpInfo::ConstantClassInfo { tag, name_index });
+                    let name_index = self.reader.read_unsigned_short()?;
+                    constant_pool[cp_idx] = CpInfo::ConstantClassInfo { tag, name_index };
                 }
 
                 CONSTANT_FIELD_REF => {
-                    let class_index = self.reader.read_unsigned_short()? - 1;
-                    let name_and_type_index = self.reader.read_unsigned_short()? - 1;
-                    constant_pool.push(CpInfo::ConstantFieldrefInfo {
+                    let class_index = self.reader.read_unsigned_short()?;
+                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    constant_pool[cp_idx] = CpInfo::ConstantFieldrefInfo {
                         tag,
                         class_index,
                         name_and_type_index,
-                    });
+                    };
                 }
 
                 CONSTANT_INTERFACE_METHOD_REF => {
-                    let class_index = self.reader.read_unsigned_short()? - 1;
-                    let name_and_type_index = self.reader.read_unsigned_short()? - 1;
-                    constant_pool.push(CpInfo::ConstantInterfaceMethodrefInfo {
+                    let class_index = self.reader.read_unsigned_short()?;
+                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    constant_pool[cp_idx] = CpInfo::ConstantInterfaceMethodrefInfo {
                         tag,
                         class_index,
                         name_and_type_index,
-                    });
+                    };
                 }
 
                 CONSTANT_STRING => {
-                    let string_index = self.reader.read_unsigned_short()? - 1;
-                    constant_pool.push(CpInfo::ConstantStringInfo { tag, string_index });
+                    let string_index = self.reader.read_unsigned_short()?;
+                    constant_pool[cp_idx] = CpInfo::ConstantStringInfo { tag, string_index };
                 }
 
                 CONSTANT_INTEGER => {
                     let bytes = self.reader.read_unsigned_int()?;
-                    constant_pool.push(CpInfo::ConstantIntegerInfo { tag, bytes });
+                    constant_pool[cp_idx] = CpInfo::ConstantIntegerInfo { tag, bytes };
                 }
 
                 CONSTANT_FLOAT => {
                     let bytes = self.reader.read_unsigned_int()?;
-                    constant_pool.push(CpInfo::ConstantFloatInfo { tag, bytes });
+                    constant_pool[cp_idx] = CpInfo::ConstantFloatInfo { tag, bytes };
                 }
 
                 CONSTANT_LONG => {
                     let high_bytes = self.reader.read_unsigned_int()?;
                     let low_bytes = self.reader.read_unsigned_int()?;
-                    constant_pool.push(CpInfo::ConstantLongInfo {
+                    constant_pool[cp_idx] = CpInfo::ConstantLongInfo {
                         tag,
                         high_bytes,
                         low_bytes,
-                    });
+                    };
+
+                    // Long values take up two consecutive entries in the Constant Pool.
+                    cp_idx += 1;
                 }
 
                 CONSTANT_DOUBLE => {
                     let high_bytes = self.reader.read_unsigned_int()?;
                     let low_bytes = self.reader.read_unsigned_int()?;
-                    constant_pool.push(CpInfo::ConstantDoubleInfo {
+                    constant_pool[cp_idx] = CpInfo::ConstantDoubleInfo {
                         tag,
                         high_bytes,
                         low_bytes,
-                    });
+                    };
+
+                    // Double values take up two consuective entries in the Constant Pool.
+                    cp_idx += 1;
                 }
 
                 CONSTANT_NAME_AND_TYPE => {
-                    let name_index = self.reader.read_unsigned_short()? - 1;
-                    let descriptor_index = self.reader.read_unsigned_short()? - 1;
-                    constant_pool.push(CpInfo::ConstantNameAndTypeInfo {
+                    let name_index = self.reader.read_unsigned_short()?;
+                    let descriptor_index = self.reader.read_unsigned_short()?;
+                    constant_pool[cp_idx] = CpInfo::ConstantNameAndTypeInfo {
                         tag,
                         name_index,
                         descriptor_index,
-                    });
+                    };
                 }
 
                 CONSTANT_UTF8 => {
@@ -343,7 +352,7 @@ impl<R: Read> Deserializer<R> {
                         bytes.push(self.reader.read_unsigned_byte()?);
                     }
 
-                    constant_pool.push(CpInfo::ConstantUtf8Info { tag, length, bytes });
+                    constant_pool[cp_idx] = CpInfo::ConstantUtf8Info { tag, length, bytes };
                 }
 
                 CONSTANT_METHOD_HANDLE => todo!(),
@@ -360,6 +369,7 @@ impl<R: Read> Deserializer<R> {
 
                 _ => unreachable!(),
             }
+            cp_idx += 1;
         }
 
         Ok(constant_pool)
@@ -377,7 +387,7 @@ impl<R: Read> Deserializer<R> {
         let constant_pool = self.deserialize_constant_pool(constant_pool_count)?;
 
         let access_flags = self.reader.read_unsigned_short()?;
-        let this_class = self.reader.read_unsigned_short()? - 1;
+        let this_class = self.reader.read_unsigned_short()?;
 
         let mut super_class = self.reader.read_unsigned_short()?;
         // if super_class == 0 then this is ``java.lang.Object``
@@ -496,7 +506,6 @@ mod test {
         ];
 
         let mut deserializer = Deserializer::new(Reader::new(Cursor::new(bytes)));
-        let classfile = deserializer.deserialize().unwrap();
-        println!("{:#?}", classfile);
+        let _classfile = deserializer.deserialize().unwrap();
     }
 }

@@ -102,8 +102,7 @@ fn test_deserialize_hello_world() {
     ];
 
     let mut deserializer = Deserializer::new(Reader::new(Cursor::new(bytes)));
-    let classfile = deserializer.deserialize().unwrap();
-    println!("{:#?}", classfile);
+    let _classfile = deserializer.deserialize().unwrap();
 }
 
 #[test]
@@ -365,6 +364,5 @@ fn test_deserialize_fields() {
     ];
 
     let mut deserializer = Deserializer::new(Reader::new(Cursor::new(bytes)));
-    let classfile = deserializer.deserialize().unwrap();
-    println!("{:#?}", classfile);
+    let _classfile = deserializer.deserialize().unwrap();
 }

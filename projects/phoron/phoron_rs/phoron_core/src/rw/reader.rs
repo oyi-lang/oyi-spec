@@ -52,7 +52,7 @@ mod tests {
 
     #[test]
     fn test_read_unsigned_byte() {
-        let bytes = [0xca, 0xfe, 0xba, 0xbe];
+        let bytes = [0xca, 0xfe, 0xba, 0xbe, 0x00, 0x01];
         let mut reader = Reader::new(Cursor::new(bytes));
 
         assert_eq!(reader.read_unsigned_byte().unwrap(), 0xca);
@@ -63,7 +63,7 @@ mod tests {
 
     #[test]
     fn test_read_unsigned_short() {
-        let bytes = [0xca, 0xfe, 0xba, 0xbe];
+        let bytes = [0xca, 0xfe, 0xba, 0xbe, 0x00, 0x01];
         let mut reader = Reader::new(Cursor::new(bytes));
 
         assert_eq!(reader.read_unsigned_short().unwrap(), 0xcafe);
@@ -72,7 +72,7 @@ mod tests {
 
     #[test]
     fn test_read_unsigned_int() {
-        let bytes = [0xca, 0xfe, 0xba, 0xbe];
+        let bytes = [0xca, 0xfe, 0xba, 0xbe, 0x01, 0x00];
         let mut reader = Reader::new(Cursor::new(bytes));
 
         assert_eq!(reader.read_unsigned_int().unwrap(), 0xcafebabe);
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_read_unsigned_long() {
-        let bytes = [0x00, 0x00, 0x00, 0x41, 0x00, 0x0f, 0x0a, 0x00];
+        let bytes = [0x00, 0x00, 0x00, 0x41, 0x00, 0x0f, 0x0a, 0x00, 0x00, 0x01];
         let mut reader = Reader::new(Cursor::new(bytes));
 
         assert_eq!(reader.read_unsigned_long().unwrap(), 0x00000041000f0a00);

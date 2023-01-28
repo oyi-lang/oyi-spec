@@ -1,5 +1,6 @@
 // todo: move ths to a higher-level client such as `phoron_asm`
 pub mod tags {
+    pub const CONSTANT_INVALID_DEFAULT: u8 = 255;
     pub const CONSTANT_CLASS: u8 = 7;
     pub const CONSTANT_FIELD_REF: u8 = 9;
     pub const CONSTANT_METHOD_REF: u8 = 10;
@@ -20,8 +21,14 @@ pub mod tags {
 }
 
 pub mod types {
-    #[derive(Debug)]
+    use std::default::Default;
+
+    #[derive(Debug, Clone, Default)]
     pub enum CpInfo {
+        /// Hack to make handling Constant Pool entries indexing much easier
+        #[default]
+        ConstantInvalidDefault,
+
         ConstantClassInfo {
             tag: u8,
             name_index: u16,

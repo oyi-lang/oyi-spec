@@ -1,5 +1,9 @@
 use phoron_core::{
-    model::{constant_pool::types::CpInfo::*, AttributeInfo::*, *},
+    model::{
+        attributes::{AttributeInfo::*, *},
+        constant_pool::types::CpInfo::*,
+        *,
+    },
     rw::writer::Writer,
     serializer::Serializer,
 };
@@ -112,17 +116,17 @@ fn test_serialize_hello_world() {
         constant_pool: vec![
             ConstantMethodrefInfo {
                 tag: 10,
-                class_index: 1,
-                name_and_type_index: 2,
+                class_index: 2,
+                name_and_type_index: 3,
             },
             ConstantClassInfo {
                 tag: 7,
-                name_index: 3,
+                name_index: 4,
             },
             ConstantNameAndTypeInfo {
                 tag: 12,
-                name_index: 4,
-                descriptor_index: 5,
+                name_index: 5,
+                descriptor_index: 6,
             },
             ConstantUtf8Info {
                 tag: 1,
@@ -143,17 +147,17 @@ fn test_serialize_hello_world() {
             },
             ConstantFieldrefInfo {
                 tag: 9,
-                class_index: 7,
-                name_and_type_index: 8,
+                class_index: 8,
+                name_and_type_index: 9,
             },
             ConstantClassInfo {
                 tag: 7,
-                name_index: 9,
+                name_index: 10,
             },
             ConstantNameAndTypeInfo {
                 tag: 12,
-                name_index: 10,
-                descriptor_index: 11,
+                name_index: 11,
+                descriptor_index: 12,
             },
             ConstantUtf8Info {
                 tag: 1,
@@ -177,7 +181,7 @@ fn test_serialize_hello_world() {
             },
             ConstantStringInfo {
                 tag: 8,
-                string_index: 13,
+                string_index: 14,
             },
             ConstantUtf8Info {
                 tag: 1,
@@ -186,17 +190,17 @@ fn test_serialize_hello_world() {
             },
             ConstantMethodrefInfo {
                 tag: 10,
-                class_index: 15,
-                name_and_type_index: 16,
+                class_index: 16,
+                name_and_type_index: 17,
             },
             ConstantClassInfo {
                 tag: 7,
-                name_index: 17,
+                name_index: 18,
             },
             ConstantNameAndTypeInfo {
                 tag: 12,
-                name_index: 18,
-                descriptor_index: 19,
+                name_index: 19,
+                descriptor_index: 20,
             },
             ConstantUtf8Info {
                 tag: 1,
@@ -221,7 +225,7 @@ fn test_serialize_hello_world() {
             },
             ConstantClassInfo {
                 tag: 7,
-                name_index: 21,
+                name_index: 22,
             },
             ConstantUtf8Info {
                 tag: 1,
@@ -267,7 +271,7 @@ fn test_serialize_hello_world() {
             },
         ],
         access_flags: 33,
-        this_class: 20,
+        this_class: 21,
         super_class: 1,
         interfaces_count: 0,
         interfaces: vec![],
@@ -277,11 +281,11 @@ fn test_serialize_hello_world() {
         methods: vec![
             MethodInfo {
                 access_flags: 1,
-                name_index: 4,
-                descriptor_index: 5,
+                name_index: 5,
+                descriptor_index: 6,
                 attributes_count: 1,
                 attributes: vec![Code {
-                    attribute_name_index: 22,
+                    attribute_name_index: 23,
                     attribute_length: 29,
                     max_stack: 1,
                     max_locals: 1,
@@ -291,7 +295,7 @@ fn test_serialize_hello_world() {
                     exception_table: vec![],
                     code_attributes_count: 1,
                     code_attributes: vec![LineNumberTable {
-                        attribute_name_index: 23,
+                        attribute_name_index: 24,
                         attribute_length: 6,
                         line_number_table_length: 1,
                         line_number_table: vec![LineNumber {
@@ -303,11 +307,11 @@ fn test_serialize_hello_world() {
             },
             MethodInfo {
                 access_flags: 9,
-                name_index: 24,
-                descriptor_index: 25,
+                name_index: 25,
+                descriptor_index: 26,
                 attributes_count: 1,
                 attributes: vec![Code {
-                    attribute_name_index: 22,
+                    attribute_name_index: 23,
                     attribute_length: 33,
                     max_stack: 2,
                     max_locals: 1,
@@ -317,7 +321,7 @@ fn test_serialize_hello_world() {
                     exception_table: vec![],
                     code_attributes_count: 1,
                     code_attributes: vec![LineNumberTable {
-                        attribute_name_index: 23,
+                        attribute_name_index: 24,
                         attribute_length: 6,
                         line_number_table_length: 1,
                         line_number_table: vec![LineNumber {
@@ -330,12 +334,11 @@ fn test_serialize_hello_world() {
         ],
         attributes_count: 1,
         attributes: vec![SourceFile {
-            attribute_name_index: 26,
+            attribute_name_index: 27,
             attribute_length: 2,
-            sourcefile_index: 27,
+            sourcefile_index: 28,
         }],
     };
-
     let mut bytes = Vec::new();
     let mut serializer = Serializer::new(Writer::new(&mut bytes));
     serializer.serialize(&classfile).unwrap();

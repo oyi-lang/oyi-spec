@@ -31,9 +31,9 @@ impl<'a, W: Write> Serializer<'a, W> {
                     attribute_length,
                     sourcefile_index,
                 } => {
-                    self.writer.write_unsigned_short(attribute_name_index + 1)?;
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
                     self.writer.write_unsigned_int(*attribute_length)?;
-                    self.writer.write_unsigned_short(sourcefile_index + 1)?;
+                    self.writer.write_unsigned_short(*sourcefile_index)?;
                 }
 
                 AttributeInfo::ConstantValue {
@@ -41,9 +41,9 @@ impl<'a, W: Write> Serializer<'a, W> {
                     attribute_length,
                     constantvalue_index,
                 } => {
-                    self.writer.write_unsigned_short(attribute_name_index + 1)?;
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
                     self.writer.write_unsigned_int(*attribute_length)?;
-                    self.writer.write_unsigned_short(constantvalue_index + 1)?;
+                    self.writer.write_unsigned_short(*constantvalue_index)?;
                 }
 
                 AttributeInfo::Code {
@@ -58,7 +58,7 @@ impl<'a, W: Write> Serializer<'a, W> {
                     code_attributes_count,
                     code_attributes,
                 } => {
-                    self.writer.write_unsigned_short(attribute_name_index + 1)?;
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
                     self.writer.write_unsigned_int(*attribute_length)?;
                     self.writer.write_unsigned_short(*max_stack)?;
                     self.writer.write_unsigned_short(*max_locals)?;
@@ -91,8 +91,7 @@ impl<'a, W: Write> Serializer<'a, W> {
                     number_of_exceptions,
                     exception_index_table,
                 } => {
-                    self.writer
-                        .write_unsigned_short(*attribute_name_index + 1)?;
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
                     self.writer.write_unsigned_int(*attribute_length)?;
                     self.writer.write_unsigned_short(*number_of_exceptions)?;
 
@@ -108,7 +107,7 @@ impl<'a, W: Write> Serializer<'a, W> {
                     line_number_table_length,
                     line_number_table,
                 } => {
-                    self.writer.write_unsigned_short(attribute_name_index + 1)?;
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
                     self.writer.write_unsigned_int(*attribute_length)?;
                     self.writer
                         .write_unsigned_short(*line_number_table_length)?;
@@ -125,7 +124,7 @@ impl<'a, W: Write> Serializer<'a, W> {
                     local_variable_table_length,
                     local_variable_table,
                 } => {
-                    self.writer.write_unsigned_short(attribute_name_index + 1)?;
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
                     self.writer.write_unsigned_int(*attribute_length)?;
                     self.writer
                         .write_unsigned_short(*local_variable_table_length)?;
@@ -133,9 +132,9 @@ impl<'a, W: Write> Serializer<'a, W> {
                     for local_var in local_variable_table {
                         self.writer.write_unsigned_short(local_var.start_pc)?;
                         self.writer.write_unsigned_short(local_var.length)?;
-                        self.writer.write_unsigned_short(local_var.name_index + 1)?;
+                        self.writer.write_unsigned_short(local_var.name_index)?;
                         self.writer
-                            .write_unsigned_short(local_var.descriptor_index + 1)?;
+                            .write_unsigned_short(local_var.descriptor_index)?;
                         self.writer.write_unsigned_short(local_var.index)?;
                     }
                 }
@@ -150,9 +149,8 @@ impl<'a, W: Write> Serializer<'a, W> {
     fn serialize_fields(&mut self, fields: &[FieldInfo]) -> SerializeResult<()> {
         for field in fields {
             self.writer.write_unsigned_short(field.access_flags)?;
-            self.writer.write_unsigned_short(field.name_index + 1)?;
-            self.writer
-                .write_unsigned_short(field.descriptor_index + 1)?;
+            self.writer.write_unsigned_short(field.name_index)?;
+            self.writer.write_unsigned_short(field.descriptor_index)?;
             self.writer.write_unsigned_short(field.attributes_count)?;
             self.serialize_attributes(&field.attributes)?;
         }
@@ -164,9 +162,8 @@ impl<'a, W: Write> Serializer<'a, W> {
     fn serialize_methods(&mut self, methods: &[MethodInfo]) -> SerializeResult<()> {
         for method in methods {
             self.writer.write_unsigned_short(method.access_flags)?;
-            self.writer.write_unsigned_short(method.name_index + 1)?;
-            self.writer
-                .write_unsigned_short(method.descriptor_index + 1)?;
+            self.writer.write_unsigned_short(method.name_index)?;
+            self.writer.write_unsigned_short(method.descriptor_index)?;
             self.writer.write_unsigned_short(method.attributes_count)?;
             self.serialize_attributes(&method.attributes)?;
         }
@@ -177,19 +174,21 @@ impl<'a, W: Write> Serializer<'a, W> {
     fn serialize_constant_pool(&mut self, constant_pool: &[CpInfo]) -> SerializeResult<()> {
         for cp_info in constant_pool {
             match cp_info {
+                CpInfo::ConstantInvalidDefault => unreachable!(),
+
                 CpInfo::ConstantMethodrefInfo {
                     tag,
                     class_index,
                     name_and_type_index,
                 } => {
                     self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index + 1)?;
-                    self.writer.write_unsigned_short(*name_and_type_index + 1)?;
+                    self.writer.write_unsigned_short(*class_index)?;
+                    self.writer.write_unsigned_short(*name_and_type_index)?;
                 }
 
                 CpInfo::ConstantClassInfo { tag, name_index } => {
                     self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*name_index + 1)?;
+                    self.writer.write_unsigned_short(*name_index)?;
                 }
 
                 CpInfo::ConstantFieldrefInfo {
@@ -198,8 +197,8 @@ impl<'a, W: Write> Serializer<'a, W> {
                     name_and_type_index,
                 } => {
                     self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index + 1)?;
-                    self.writer.write_unsigned_short(*name_and_type_index + 1)?;
+                    self.writer.write_unsigned_short(*class_index)?;
+                    self.writer.write_unsigned_short(*name_and_type_index)?;
                 }
 
                 CpInfo::ConstantInterfaceMethodrefInfo {
@@ -208,13 +207,13 @@ impl<'a, W: Write> Serializer<'a, W> {
                     name_and_type_index,
                 } => {
                     self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index + 1)?;
-                    self.writer.write_unsigned_short(*name_and_type_index + 1)?;
+                    self.writer.write_unsigned_short(*class_index)?;
+                    self.writer.write_unsigned_short(*name_and_type_index)?;
                 }
 
                 CpInfo::ConstantStringInfo { tag, string_index } => {
                     self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*string_index + 1)?;
+                    self.writer.write_unsigned_short(*string_index)?;
                 }
 
                 CpInfo::ConstantIntegerInfo { tag, bytes } => {
@@ -253,8 +252,8 @@ impl<'a, W: Write> Serializer<'a, W> {
                     descriptor_index,
                 } => {
                     self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*name_index + 1)?;
-                    self.writer.write_unsigned_short(*descriptor_index + 1)?;
+                    self.writer.write_unsigned_short(*name_index)?;
+                    self.writer.write_unsigned_short(*descriptor_index)?;
                 }
 
                 CpInfo::ConstantUtf8Info { tag, length, bytes } => {
@@ -312,7 +311,7 @@ impl<'a, W: Write> Serializer<'a, W> {
         self.serialize_constant_pool(&classfile.constant_pool)?;
 
         self.writer.write_unsigned_short(classfile.access_flags)?;
-        self.writer.write_unsigned_short(classfile.this_class + 1)?;
+        self.writer.write_unsigned_short(classfile.this_class)?;
 
         let mut super_class = classfile.super_class;
         // if super_class == 0 then this is ``java.lang.Object``
@@ -395,7 +394,7 @@ mod test {
     //}
     //SourceFile: "Minimal.java"
     fn test_serialize_minimal() {
-        use crate::model::{constant_pool::types::CpInfo, *};
+        use crate::model::{attributes::AttributeInfo::*, constant_pool::types::CpInfo::*};
 
         let expected_bytes = [
             0xca, 0xfe, 0xba, 0xbe, 0x00, 0x03, 0x00, 0x2d, 0x00, 0x0e, 0x0a, 0x00, 0x0d, 0x00,
@@ -417,59 +416,59 @@ mod test {
         ];
 
         let classfile = ClassFile {
-            magic: 0xcafebabe,
+            magic: 3405691582,
             minor_version: 3,
             major_version: 45,
             constant_pool_count: 14,
             constant_pool: vec![
-                CpInfo::ConstantMethodrefInfo {
+                ConstantMethodrefInfo {
                     tag: 10,
-                    class_index: 12,
-                    name_and_type_index: 6,
+                    class_index: 13,
+                    name_and_type_index: 7,
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 16,
                     bytes: vec![
                         106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116,
                     ],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 10,
                     bytes: vec![83, 111, 117, 114, 99, 101, 70, 105, 108, 101],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 6,
                     bytes: vec![60, 105, 110, 105, 116, 62],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 4,
                     bytes: vec![109, 97, 105, 110],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 7,
                     bytes: vec![77, 105, 110, 105, 109, 97, 108],
                 },
-                CpInfo::ConstantNameAndTypeInfo {
+                ConstantNameAndTypeInfo {
                     tag: 12,
-                    name_index: 3,
-                    descriptor_index: 10,
+                    name_index: 4,
+                    descriptor_index: 11,
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 4,
                     bytes: vec![67, 111, 100, 101],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 12,
                     bytes: vec![77, 105, 110, 105, 109, 97, 108, 46, 106, 97, 118, 97],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 22,
                     bytes: vec![
@@ -477,22 +476,22 @@ mod test {
                         110, 103, 59, 41, 86,
                     ],
                 },
-                CpInfo::ConstantUtf8Info {
+                ConstantUtf8Info {
                     tag: 1,
                     length: 3,
                     bytes: vec![40, 41, 86],
                 },
-                CpInfo::ConstantClassInfo {
+                ConstantClassInfo {
                     tag: 7,
-                    name_index: 5,
+                    name_index: 6,
                 },
-                CpInfo::ConstantClassInfo {
+                ConstantClassInfo {
                     tag: 7,
-                    name_index: 1,
+                    name_index: 2,
                 },
             ],
             access_flags: 33,
-            this_class: 11,
+            this_class: 12,
             super_class: 12,
             interfaces_count: 0,
             interfaces: vec![],
@@ -502,11 +501,11 @@ mod test {
             methods: vec![
                 MethodInfo {
                     access_flags: 1,
-                    name_index: 3,
-                    descriptor_index: 10,
+                    name_index: 4,
+                    descriptor_index: 11,
                     attributes_count: 1,
-                    attributes: vec![AttributeInfo::Code {
-                        attribute_name_index: 7,
+                    attributes: vec![Code {
+                        attribute_name_index: 8,
                         attribute_length: 17,
                         max_stack: 1,
                         max_locals: 1,
@@ -520,11 +519,11 @@ mod test {
                 },
                 MethodInfo {
                     access_flags: 9,
-                    name_index: 4,
-                    descriptor_index: 9,
+                    name_index: 5,
+                    descriptor_index: 10,
                     attributes_count: 1,
-                    attributes: vec![AttributeInfo::Code {
-                        attribute_name_index: 7,
+                    attributes: vec![Code {
+                        attribute_name_index: 8,
                         attribute_length: 13,
                         max_stack: 1,
                         max_locals: 1,
@@ -538,10 +537,10 @@ mod test {
                 },
             ],
             attributes_count: 1,
-            attributes: vec![AttributeInfo::SourceFile {
-                attribute_name_index: 2,
+            attributes: vec![SourceFile {
+                attribute_name_index: 3,
                 attribute_length: 2,
-                sourcefile_index: 8,
+                sourcefile_index: 9,
             }],
         };
 
