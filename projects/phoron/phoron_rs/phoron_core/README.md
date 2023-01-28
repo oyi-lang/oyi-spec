@@ -12,6 +12,7 @@ For details on the object representation, see [Object Model](doc/object_model.md
 
   ```
     $ cargo build --release
+    $ cargo test --release
   ```
 
 ## Demo
