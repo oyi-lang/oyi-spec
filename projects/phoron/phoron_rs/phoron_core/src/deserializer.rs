@@ -3,9 +3,11 @@
 use crate::{
     error::DeserializeError,
     model::{
+        attributes::{
+            predefined_attributes, AttributeInfo, ExceptionHandler, LineNumber, LocalVariable,
+        },
         constant_pool::{tags::*, types::CpInfo},
-        predefined_attributes, AttributeInfo, ClassFile, ExceptionHandler, FieldInfo, LineNumber,
-        LocalVariable, MethodInfo,
+        ClassFile, FieldInfo, MethodInfo,
     },
     rw::reader::Reader,
 };
@@ -15,7 +17,7 @@ pub type DeserializeResult<T> = Result<T, DeserializeError>;
 
 /// The Deserializer reads a class file byte stream and converts it into the
 /// object model repreensting the class file.
-struct Deserializer<R: Read> {
+pub struct Deserializer<R: Read> {
     reader: Reader<R>,
 }
 
@@ -37,7 +39,7 @@ impl<R: Read> Deserializer<R> {
             let attribute_length = self.reader.read_unsigned_int()?;
 
             match &constant_pool[attribute_name_index as usize] {
-                CpInfo::ConstantUtf8Info { tag, length, bytes } => {
+                CpInfo::ConstantUtf8Info { bytes, .. } => {
                     match String::from_utf8_lossy(bytes).into_owned().as_str() {
                         predefined_attributes::SOURCE_FILE => {
                             let sourcefile_index = self.reader.read_unsigned_short()? - 1;
@@ -254,7 +256,7 @@ impl<R: Read> Deserializer<R> {
             let tag = self.reader.read_unsigned_byte()?;
 
             match tag {
-                CONSTANT_METHODREF => {
+                CONSTANT_METHOD_REF => {
                     let class_index = self.reader.read_unsigned_short()? - 1;
                     let name_and_type_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantMethodrefInfo {
@@ -269,7 +271,7 @@ impl<R: Read> Deserializer<R> {
                     constant_pool.push(CpInfo::ConstantClassInfo { tag, name_index });
                 }
 
-                CONSTANT_FIELDREF => {
+                CONSTANT_FIELD_REF => {
                     let class_index = self.reader.read_unsigned_short()? - 1;
                     let name_and_type_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantFieldrefInfo {
@@ -279,7 +281,7 @@ impl<R: Read> Deserializer<R> {
                     });
                 }
 
-                CONSTANT_INTERFACEMETHODREF => {
+                CONSTANT_INTERFACE_METHOD_REF => {
                     let class_index = self.reader.read_unsigned_short()? - 1;
                     let name_and_type_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantInterfaceMethodrefInfo {
@@ -324,7 +326,7 @@ impl<R: Read> Deserializer<R> {
                     });
                 }
 
-                CONSTANT_NAMEANDTYPE => {
+                CONSTANT_NAME_AND_TYPE => {
                     let name_index = self.reader.read_unsigned_short()? - 1;
                     let descriptor_index = self.reader.read_unsigned_short()? - 1;
                     constant_pool.push(CpInfo::ConstantNameAndTypeInfo {
@@ -344,6 +346,18 @@ impl<R: Read> Deserializer<R> {
                     constant_pool.push(CpInfo::ConstantUtf8Info { tag, length, bytes });
                 }
 
+                CONSTANT_METHOD_HANDLE => todo!(),
+
+                CONSTANT_METHOD_TYPE => todo!(),
+
+                CONSTANT_DYNAMIC => todo!(),
+
+                CONSTANT_INVOKE_DYNAMIC => todo!(),
+
+                CONSTANT_MODULE => todo!(),
+
+                CONSTANT_PACKAGE => todo!(),
+
                 _ => unreachable!(),
             }
         }
@@ -360,7 +374,7 @@ impl<R: Read> Deserializer<R> {
         // Constant Pool
         let constant_pool_count = self.reader.read_unsigned_short()?;
         assert!(constant_pool_count > 0);
-        let mut constant_pool = self.deserialize_constant_pool(constant_pool_count)?;
+        let constant_pool = self.deserialize_constant_pool(constant_pool_count)?;
 
         let access_flags = self.reader.read_unsigned_short()?;
         let this_class = self.reader.read_unsigned_short()? - 1;

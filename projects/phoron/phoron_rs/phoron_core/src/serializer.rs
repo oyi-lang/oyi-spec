@@ -2,7 +2,9 @@
 
 use crate::{
     error::SerializeError,
-    model::{constant_pool::types::CpInfo, AttributeInfo, ClassFile, FieldInfo, MethodInfo},
+    model::{
+        attributes::AttributeInfo, constant_pool::types::CpInfo, ClassFile, FieldInfo, MethodInfo,
+    },
     rw::writer::Writer,
 };
 use std::io::Write;
@@ -11,7 +13,7 @@ pub type SerializeResult<T> = Result<T, SerializeError>;
 
 /// The Serializer takes in the JVM class file object model, and writes a stream of valid
 /// JVM bytecode to the supplied writer.
-struct Serializer<'a, W: Write> {
+pub struct Serializer<'a, W: Write> {
     writer: Writer<'a, W>,
 }
 
@@ -137,6 +139,7 @@ impl<'a, W: Write> Serializer<'a, W> {
                         self.writer.write_unsigned_short(local_var.index)?;
                     }
                 }
+                _ => todo!(),
             }
         }
 
@@ -262,6 +265,33 @@ impl<'a, W: Write> Serializer<'a, W> {
                         self.writer.write_unsigned_byte(*b)?;
                     }
                 }
+
+                CpInfo::ConstantMethodHandleInfo {
+                    tag,
+                    reference_kind,
+                    reference_index,
+                } => {}
+
+                CpInfo::ConstantMethodTypeInfo {
+                    tag,
+                    descriptor_index,
+                } => {}
+
+                CpInfo::ConstantDynamicInfo {
+                    tag,
+                    bootstrap_method_attr_index,
+                    name_and_type_index,
+                } => {}
+
+                CpInfo::ConstantInvokeDynamicInfo {
+                    tag,
+                    bootstrap_method_attr_index,
+                    name_and_type_index,
+                } => {}
+
+                CpInfo::ConstantModuleInfo { tag, name_index } => {}
+
+                CpInfo::ConstantPackageInfo { tag, name_index } => {}
             }
         }
 
@@ -517,7 +547,7 @@ mod test {
 
         let mut bytes: Vec<u8> = Vec::new();
         let mut serializer = Serializer::new(Writer::new(&mut bytes));
-        serializer.serialize(&classfile);
+        serializer.serialize(&classfile).unwrap();
         assert_eq!(expected_bytes, &bytes[..]);
     }
 }

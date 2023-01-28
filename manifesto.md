@@ -3,7 +3,7 @@ Oyi is intended as a modern ML, stylistically and spiritually in the vein of OCa
 The JVM is the *first tier* for Oyi. Other platforms (native, LLVM, C et al) are *second tier*. Second tier platforms may or may not be supported (at all).
 
 Note: Not everything in this document has to be completed before starting the Oyi project itself, but the intent is to document not only the essentials for Oyi, but also for
-a continuing edificational journey into the world of Compilers (PLT covered elsewhere).
+continuing an edificational journey into the world of Compilers (PLT covered elsewhere).
 
 ## Projects
 
@@ -15,14 +15,10 @@ a continuing edificational journey into the world of Compilers (PLT covered else
   * [SimPL (OCaml)](projects/simpl/simpl_ocaml) [ ]
   * [SimPL (Rust)](projects/simpl/simpl_rs) [ ]
 
-  * [MiniML (OCaml)](projects/miniml/miniml_ocaml) [ ]
-  * [MiniML (Rust)](projects/miniml/miniml_rs) [ ]
-
   * [Lisp interpreter (OCaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
   * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_rs) [ ]
 
-  * [Phoron - JVM Bytecode Assembler (OCaml)](projects/phoron/phoron_ocaml) [ ] 
-  * [Phoron - JVM Bytecode Assembler (Rust)](projects/phoron/phoron_rs) [ ] 
+  * [Phoron - JVM Bytecode Assembler](projects/phoron/phoron_rs) [ ] 
 
   * [Ephi - Pascal compiler (OCaml)](projects/ephi/ephi_ocaml)[ ]
   * [Ephi - Pascal compiler (Rust)](projects/ephi/ephi_rs)[ ]
@@ -53,6 +49,7 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
 ### OCaml and F#/ML specific
 
+  * [A Standard ML Compiler](https://www.researchgate.net/publication/2637881_A_standard_ML_compiler) [MacQuueen] [ ]
   * [The Definition of Standard ML - SML 90](https://github.com/SMLFamily/sml90) [Milner et al] [ ]
 
   * [The Definition of Standard ML - SML 97](https://github.com/SMLFamily/sml97) [Milner et al] [ ]
@@ -67,7 +64,7 @@ a continuing edificational journey into the world of Compilers (PLT covered else
 
   * [Java Virtual Machine](https://archive.org/details/javavirtualmachi0000meye) [Troy Downing and Jon Meyer] [x]
 
-  * [The JVM specification](https://docs.oracle.com/javase/specs/jls/se19/html/index.html) [ ]
+  * [The JVM specification](https://docs.oracle.com/javase/specs/jls/se19/html/index.html) [x]
 
   * [Tail Call Elimination of the Java Virtual Machine](https://www.researchgate.net/publication/222659379_Tail_Call_Elimination_on_the_Java_Virtual_Machine/fulltext/0e5fab00f0c41c4932e2ff21/Tail-Call-Elimination-on-the-Java-Virtual-Machine.pdf) [Schinz and Odersky] [ ]
 
