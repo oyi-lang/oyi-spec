@@ -138,7 +138,176 @@ impl<'a, W: Write> Serializer<'a, W> {
                         self.writer.write_unsigned_short(local_var.index)?;
                     }
                 }
-                _ => todo!(),
+
+                AttributeInfo::StackMapTable {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_entries,
+                    entries,
+                } => {}
+
+                AttributeInfo::InnerClasses {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_classes,
+                    classes,
+                } => {}
+
+                AttributeInfo::EnclosingMethod {
+                    attribute_name_index,
+                    attribute_length,
+                    class_index,
+                    method_index,
+                } => {}
+
+                AttributeInfo::Synthetic {
+                    attribute_name_index,
+                    attribute_length,
+                } => {}
+
+                AttributeInfo::Signature {
+                    attribute_name_index,
+                    attribute_length,
+                    signature_index,
+                } => {}
+
+                AttributeInfo::SourceDebugExtension {
+                    attribute_name_index,
+                    attribute_length,
+                    debug_extension,
+                } => {}
+
+                AttributeInfo::LocalVariableTypeTable {
+                    attribute_name_index,
+                    attribute_length,
+                    local_variable_type_table_length,
+                    local_variable_type_table,
+                } => {}
+
+                AttributeInfo::Deprecated {
+                    attribute_name_index,
+                    attribute_length,
+                } => {}
+
+                AttributeInfo::RuntimeVisibleAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {}
+
+                AttributeInfo::RuntimeInvisibleAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {}
+
+                AttributeInfo::RuntimeVisibleParameterAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_parameters,
+                    parameter_annotations,
+                } => {}
+
+                AttributeInfo::RuntimeInvisibleParameterAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_parameters,
+                    parameter_annotations,
+                } => {}
+
+                AttributeInfo::RuntimeVisibleTypeAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {}
+
+                AttributeInfo::RuntimeInvisibleTypeAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {}
+
+                AttributeInfo::AnnotationDefault {
+                    attribute_name_index,
+                    attribute_length,
+                    default_value,
+                } => {}
+
+                AttributeInfo::BootstrapMethods {
+                    attribute_name_index,
+                    attribute_length,
+                    num_bootstrap_methods,
+                    bootstrap_methods,
+                } => {}
+
+                AttributeInfo::MethodParameters {
+                    attribute_name_index,
+                    attribute_length,
+                    parameters_count,
+                    parameters,
+                } => {}
+
+                AttributeInfo::Module {
+                    attribute_name_index,
+                    attribute_length,
+                    module_name_index,
+                    module_flags,
+                    module_version_index,
+                    requires_count,
+                    requires,
+                    exports_count,
+                    exports,
+                    opens_count,
+                    opens,
+                    uses_count,
+                    uses_index,
+                    provides_count,
+                    provides,
+                } => {}
+
+                AttributeInfo::ModulePackages {
+                    attribute_name_index,
+                    attribute_length,
+                    package_count,
+                    package_index,
+                } => {}
+
+                AttributeInfo::ModuleMainClass {
+                    attribute_name_index,
+                    attribute_length,
+                    main_class_index,
+                } => {}
+
+                AttributeInfo::NestHost {
+                    attribute_name_index,
+                    attribute_length,
+                    host_class_index,
+                } => {}
+
+                AttributeInfo::NestMembers {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_classes,
+                    classes,
+                } => {}
+
+                AttributeInfo::Record {
+                    attribute_name_index,
+                    attribute_length,
+                    components_count,
+                    components,
+                } => {}
+
+                AttributeInfo::PermittedSubclasses {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_classes,
+                    classes,
+                } => {}
             }
         }
 

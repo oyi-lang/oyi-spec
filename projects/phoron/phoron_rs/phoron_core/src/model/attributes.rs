@@ -113,14 +113,14 @@ pub enum AttributeInfo {
     RuntimeVisibleParameterAnnotations {
         attribute_name_index: u16,
         attribute_length: u32,
-        num_parameters: u16,
+        num_parameters: u8,
         parameter_annotations: Vec<ParameterAnnotation>,
     },
 
     RuntimeInvisibleParameterAnnotations {
         attribute_name_index: u16,
         attribute_length: u32,
-        num_parameters: u16,
+        num_parameters: u8,
         parameter_annotations: Vec<ParameterAnnotation>,
     },
 
@@ -134,6 +134,7 @@ pub enum AttributeInfo {
     RuntimeInvisibleTypeAnnotations {
         attribute_name_index: u16,
         attribute_length: u32,
+        num_annotations: u16,
         annotations: Vec<TypeAnnotation>,
     },
 
@@ -250,7 +251,7 @@ pub struct Export {
 #[derive(Debug)]
 pub struct Require {
     pub requires_index: u16,
-    pub reequires_flags: u16,
+    pub requires_flags: u16,
     pub requires_version_index: u16,
 }
 
@@ -263,7 +264,7 @@ pub struct Parameter {
 #[derive(Debug)]
 pub struct BootstrapMethod {
     pub bootstrap_method_ref: u16,
-    pub num_bootstrap_arguments: u32,
+    pub num_bootstrap_arguments: u16,
     pub bootstrap_arguments: Vec<u16>,
 }
 
@@ -323,7 +324,6 @@ pub struct LocalVarEntry {
 
 #[derive(Debug)]
 pub struct TypeAnnotation {
-    pub target_type: u8,
     pub target_info: TargetInfo,
     pub target_path: TypePath,
     pub type_index: u16,
@@ -339,10 +339,13 @@ pub struct ParameterAnnotation {
 
 #[derive(Debug)]
 pub enum ElementValue {
+    ConstValueIndex(u16),
+    ClassInfoIndex(u16),
     EnumConstValue {
         type_name_index: u16,
         const_name_index: u16,
     },
+    AnnotationValue(Annotation),
     ArrayValue {
         num_values: u16,
         values: Vec<ElementValue>,
