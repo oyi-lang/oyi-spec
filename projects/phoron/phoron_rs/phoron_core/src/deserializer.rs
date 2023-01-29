@@ -355,17 +355,53 @@ impl<R: Read> Deserializer<R> {
                     constant_pool[cp_idx] = Some(CpInfo::ConstantUtf8Info { tag, length, bytes });
                 }
 
-                CONSTANT_METHOD_HANDLE => todo!(),
+                CONSTANT_METHOD_HANDLE => {
+                    let reference_kind = self.reader.read_unsigned_byte()?;
+                    let reference_index = self.reader.read_unsigned_short()?;
+                    constant_pool.push(Some(CpInfo::ConstantMethodHandleInfo {
+                        tag,
+                        reference_kind,
+                        reference_index,
+                    }));
+                }
 
-                CONSTANT_METHOD_TYPE => todo!(),
+                CONSTANT_METHOD_TYPE => {
+                    let descriptor_index = self.reader.read_unsigned_short()?;
+                    constant_pool.push(Some(CpInfo::ConstantMethodTypeInfo {
+                        tag,
+                        descriptor_index,
+                    }));
+                }
 
-                CONSTANT_DYNAMIC => todo!(),
+                CONSTANT_DYNAMIC => {
+                    let bootstrap_method_attr_index = self.reader.read_unsigned_short()?;
+                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    constant_pool.push(Some(CpInfo::ConstantDynamicInfo {
+                        tag,
+                        bootstrap_method_attr_index,
+                        name_and_type_index,
+                    }));
+                }
 
-                CONSTANT_INVOKE_DYNAMIC => todo!(),
+                CONSTANT_INVOKE_DYNAMIC => {
+                    let bootstrap_method_attr_index = self.reader.read_unsigned_short()?;
+                    let name_and_type_index = self.reader.read_unsigned_short()?;
+                    constant_pool.push(Some(CpInfo::ConstantInvokeDynamicInfo {
+                        tag,
+                        bootstrap_method_attr_index,
+                        name_and_type_index,
+                    }));
+                }
 
-                CONSTANT_MODULE => todo!(),
+                CONSTANT_MODULE => {
+                    let name_index = self.reader.read_unsigned_short()?;
+                    constant_pool.push(Some(CpInfo::ConstantModuleInfo { tag, name_index }));
+                }
 
-                CONSTANT_PACKAGE => todo!(),
+                CONSTANT_PACKAGE => {
+                    let name_index = self.reader.read_unsigned_short()?;
+                    constant_pool.push(Some(CpInfo::ConstantPackageInfo { tag, name_index }));
+                }
 
                 _ => unreachable!(),
             }

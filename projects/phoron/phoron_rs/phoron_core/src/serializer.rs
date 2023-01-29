@@ -271,28 +271,51 @@ impl<'a, W: Write> Serializer<'a, W> {
                         tag,
                         reference_kind,
                         reference_index,
-                    } => {}
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_byte(*reference_kind)?;
+                        self.writer.write_unsigned_short(*reference_index)?;
+                    }
 
                     CpInfo::ConstantMethodTypeInfo {
                         tag,
                         descriptor_index,
-                    } => {}
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*descriptor_index)?;
+                    }
 
                     CpInfo::ConstantDynamicInfo {
                         tag,
                         bootstrap_method_attr_index,
                         name_and_type_index,
-                    } => {}
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer
+                            .write_unsigned_short(*bootstrap_method_attr_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
 
                     CpInfo::ConstantInvokeDynamicInfo {
                         tag,
                         bootstrap_method_attr_index,
                         name_and_type_index,
-                    } => {}
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer
+                            .write_unsigned_short(*bootstrap_method_attr_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
 
-                    CpInfo::ConstantModuleInfo { tag, name_index } => {}
+                    CpInfo::ConstantModuleInfo { tag, name_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                    }
 
-                    CpInfo::ConstantPackageInfo { tag, name_index } => {}
+                    CpInfo::ConstantPackageInfo { tag, name_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                    }
                 }
             }
         }
