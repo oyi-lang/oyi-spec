@@ -1,4 +1,0 @@
-(executable
- (public_name phoron_ocaml)
- (name main)
- (libraries phoron_ocaml))
