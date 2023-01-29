@@ -21,14 +21,8 @@ pub mod tags {
 }
 
 pub mod types {
-    use std::default::Default;
-
-    #[derive(Debug, Clone, Default)]
+    #[derive(Debug, Clone)]
     pub enum CpInfo {
-        /// Hack to make handling Constant Pool entries indexing much easier
-        #[default]
-        ConstantInvalidDefault,
-
         ConstantClassInfo {
             tag: u8,
             name_index: u16,

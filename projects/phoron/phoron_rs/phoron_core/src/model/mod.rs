@@ -1,13 +1,16 @@
 pub mod attributes;
 pub mod constant_pool;
 
+use attributes::AttributeInfo;
+use constant_pool::types::CpInfo;
+
 #[derive(Debug)]
 pub struct ClassFile {
     pub magic: u32,
     pub minor_version: u16,
     pub major_version: u16,
     pub constant_pool_count: u16,
-    pub constant_pool: Vec<constant_pool::types::CpInfo>,
+    pub constant_pool: Vec<Option<CpInfo>>,
     pub access_flags: u16,
     pub this_class: u16,
     pub super_class: u16,
@@ -18,7 +21,7 @@ pub struct ClassFile {
     pub methods_count: u16,
     pub methods: Vec<MethodInfo>,
     pub attributes_count: u16,
-    pub attributes: Vec<attributes::AttributeInfo>,
+    pub attributes: Vec<AttributeInfo>,
 }
 
 #[derive(Debug)]
@@ -27,7 +30,7 @@ pub struct FieldInfo {
     pub name_index: u16,
     pub descriptor_index: u16,
     pub attributes_count: u16,
-    pub attributes: Vec<attributes::AttributeInfo>,
+    pub attributes: Vec<AttributeInfo>,
 }
 
 #[derive(Debug)]
@@ -36,7 +39,7 @@ pub struct MethodInfo {
     pub name_index: u16,
     pub descriptor_index: u16,
     pub attributes_count: u16,
-    pub attributes: Vec<attributes::AttributeInfo>,
+    pub attributes: Vec<AttributeInfo>,
 }
 
 // todo: move this to a higher-level client such as `phoron_asm`

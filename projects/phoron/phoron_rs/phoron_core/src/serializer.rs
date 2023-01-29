@@ -171,126 +171,129 @@ impl<'a, W: Write> Serializer<'a, W> {
     }
 
     /// Serialize the contents of the Constant Pool.
-    fn serialize_constant_pool(&mut self, constant_pool: &[CpInfo]) -> SerializeResult<()> {
+    fn serialize_constant_pool(
+        &mut self,
+        constant_pool: &Vec<Option<CpInfo>>,
+    ) -> SerializeResult<()> {
         for cp_info in constant_pool {
-            match cp_info {
-                CpInfo::ConstantInvalidDefault => unreachable!(),
-
-                CpInfo::ConstantMethodrefInfo {
-                    tag,
-                    class_index,
-                    name_and_type_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index)?;
-                    self.writer.write_unsigned_short(*name_and_type_index)?;
-                }
-
-                CpInfo::ConstantClassInfo { tag, name_index } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*name_index)?;
-                }
-
-                CpInfo::ConstantFieldrefInfo {
-                    tag,
-                    class_index,
-                    name_and_type_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index)?;
-                    self.writer.write_unsigned_short(*name_and_type_index)?;
-                }
-
-                CpInfo::ConstantInterfaceMethodrefInfo {
-                    tag,
-                    class_index,
-                    name_and_type_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index)?;
-                    self.writer.write_unsigned_short(*name_and_type_index)?;
-                }
-
-                CpInfo::ConstantStringInfo { tag, string_index } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*string_index)?;
-                }
-
-                CpInfo::ConstantIntegerInfo { tag, bytes } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*bytes)?;
-                }
-
-                CpInfo::ConstantFloatInfo { tag, bytes } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*bytes)?;
-                }
-
-                CpInfo::ConstantLongInfo {
-                    tag,
-                    high_bytes,
-                    low_bytes,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*high_bytes)?;
-                    self.writer.write_unsigned_int(*low_bytes)?;
-                }
-
-                CpInfo::ConstantDoubleInfo {
-                    tag,
-                    high_bytes,
-                    low_bytes,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*high_bytes)?;
-                    self.writer.write_unsigned_int(*low_bytes)?;
-                }
-
-                CpInfo::ConstantNameAndTypeInfo {
-                    tag,
-                    name_index,
-                    descriptor_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*name_index)?;
-                    self.writer.write_unsigned_short(*descriptor_index)?;
-                }
-
-                CpInfo::ConstantUtf8Info { tag, length, bytes } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*length)?;
-
-                    for b in bytes {
-                        self.writer.write_unsigned_byte(*b)?;
+            if let Some(cp_info) = cp_info {
+                match cp_info {
+                    CpInfo::ConstantMethodrefInfo {
+                        tag,
+                        class_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*class_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
                     }
+
+                    CpInfo::ConstantClassInfo { tag, name_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                    }
+
+                    CpInfo::ConstantFieldrefInfo {
+                        tag,
+                        class_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*class_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
+
+                    CpInfo::ConstantInterfaceMethodrefInfo {
+                        tag,
+                        class_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*class_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
+
+                    CpInfo::ConstantStringInfo { tag, string_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*string_index)?;
+                    }
+
+                    CpInfo::ConstantIntegerInfo { tag, bytes } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*bytes)?;
+                    }
+
+                    CpInfo::ConstantFloatInfo { tag, bytes } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*bytes)?;
+                    }
+
+                    CpInfo::ConstantLongInfo {
+                        tag,
+                        high_bytes,
+                        low_bytes,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*high_bytes)?;
+                        self.writer.write_unsigned_int(*low_bytes)?;
+                    }
+
+                    CpInfo::ConstantDoubleInfo {
+                        tag,
+                        high_bytes,
+                        low_bytes,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*high_bytes)?;
+                        self.writer.write_unsigned_int(*low_bytes)?;
+                    }
+
+                    CpInfo::ConstantNameAndTypeInfo {
+                        tag,
+                        name_index,
+                        descriptor_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                        self.writer.write_unsigned_short(*descriptor_index)?;
+                    }
+
+                    CpInfo::ConstantUtf8Info { tag, length, bytes } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*length)?;
+
+                        for b in bytes {
+                            self.writer.write_unsigned_byte(*b)?;
+                        }
+                    }
+
+                    CpInfo::ConstantMethodHandleInfo {
+                        tag,
+                        reference_kind,
+                        reference_index,
+                    } => {}
+
+                    CpInfo::ConstantMethodTypeInfo {
+                        tag,
+                        descriptor_index,
+                    } => {}
+
+                    CpInfo::ConstantDynamicInfo {
+                        tag,
+                        bootstrap_method_attr_index,
+                        name_and_type_index,
+                    } => {}
+
+                    CpInfo::ConstantInvokeDynamicInfo {
+                        tag,
+                        bootstrap_method_attr_index,
+                        name_and_type_index,
+                    } => {}
+
+                    CpInfo::ConstantModuleInfo { tag, name_index } => {}
+
+                    CpInfo::ConstantPackageInfo { tag, name_index } => {}
                 }
-
-                CpInfo::ConstantMethodHandleInfo {
-                    tag,
-                    reference_kind,
-                    reference_index,
-                } => {}
-
-                CpInfo::ConstantMethodTypeInfo {
-                    tag,
-                    descriptor_index,
-                } => {}
-
-                CpInfo::ConstantDynamicInfo {
-                    tag,
-                    bootstrap_method_attr_index,
-                    name_and_type_index,
-                } => {}
-
-                CpInfo::ConstantInvokeDynamicInfo {
-                    tag,
-                    bootstrap_method_attr_index,
-                    name_and_type_index,
-                } => {}
-
-                CpInfo::ConstantModuleInfo { tag, name_index } => {}
-
-                CpInfo::ConstantPackageInfo { tag, name_index } => {}
             }
         }
 
@@ -421,74 +424,75 @@ mod test {
             major_version: 45,
             constant_pool_count: 14,
             constant_pool: vec![
-                ConstantMethodrefInfo {
+                None,
+                Some(ConstantMethodrefInfo {
                     tag: 10,
                     class_index: 13,
                     name_and_type_index: 7,
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 16,
                     bytes: vec![
                         106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116,
                     ],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 10,
                     bytes: vec![83, 111, 117, 114, 99, 101, 70, 105, 108, 101],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 6,
                     bytes: vec![60, 105, 110, 105, 116, 62],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 4,
                     bytes: vec![109, 97, 105, 110],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 7,
                     bytes: vec![77, 105, 110, 105, 109, 97, 108],
-                },
-                ConstantNameAndTypeInfo {
+                }),
+                Some(ConstantNameAndTypeInfo {
                     tag: 12,
                     name_index: 4,
                     descriptor_index: 11,
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 4,
                     bytes: vec![67, 111, 100, 101],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 12,
                     bytes: vec![77, 105, 110, 105, 109, 97, 108, 46, 106, 97, 118, 97],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 22,
                     bytes: vec![
                         40, 91, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105,
                         110, 103, 59, 41, 86,
                     ],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 3,
                     bytes: vec![40, 41, 86],
-                },
-                ConstantClassInfo {
+                }),
+                Some(ConstantClassInfo {
                     tag: 7,
                     name_index: 6,
-                },
-                ConstantClassInfo {
+                }),
+                Some(ConstantClassInfo {
                     tag: 7,
                     name_index: 2,
-                },
+                }),
             ],
             access_flags: 33,
             this_class: 12,
