@@ -9,25 +9,17 @@ continuing an edificational journey into the world of Compilers (PLT covered els
 
   * [JVM internals using Jasmin](projects/jvm-with-jasmin) [x]
 
-  * [BASIC interpreter (OCaml)](projects/basic/basic_ocaml) [ ]
-  * [BASIC interpreter (Rust)](projects/basic/basic_rs) [ ]
-
+  * [BASIC interpreter](projects/basic/basic_ocaml) [ ]
   * [SimPL (OCaml)](projects/simpl/simpl_ocaml) [ ]
-  * [SimPL (Rust)](projects/simpl/simpl_rs) [ ]
-
-  * [Lisp interpreter (OCaml)](projects/lwhlisp/lwhlisp_ocaml) [ ]
-  * [Lisp interpreter (Rust)](projects/lwhlisp/lwhlisp_rs) [ ]
 
   * [Phoron - JVM Bytecode Assembler](projects/phoron/phoron_rs) [ ] 
 
-  * [Ephi - Pascal compiler (OCaml)](projects/ephi/ephi_ocaml)[ ]
-  * [Ephi - Pascal compiler (Rust)](projects/ephi/ephi_rs)[ ]
+  * [MiniML (OCaml)] (projects/miniml/minml_ocaml) [ ]
+  * [MiniML (Rust)] (projects/miniml/minml_rs) [ ]
 
-  * [Triangle compiler (OCaml)](projects/triangle/triangle_ocaml) [ ]
-  * [Triangle compiler (Rust)](projects/triangle/triangle_rs) [ ]
+  * [MinCaml (OCaml)] (projects/mincaml/mincaml_ocaml) [ ]
+  * [MinCaml (Rust)] (projects/mincaml/mincaml_rs) [ ]
 
-  * [MinCaml] (projects/mincaml/) [ ]
-  * [MinCaml] (projects/mincaml/) [ ]
 
 ## Resources
 
