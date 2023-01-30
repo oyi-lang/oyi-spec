@@ -24,8 +24,7 @@ impl<R: Read> Deserializer<R> {
         Deserializer { reader }
     }
 
-    fn deserialize_target_info(&mut self) -> DeserializeResult<TargetInfo> {
-        let target_type = self.reader.read_unsigned_byte()?;
+    fn deserialize_target_info(&mut self, target_type: u8) -> DeserializeResult<TargetInfo> {
         let target_info = match target_type {
             0x00 | 0x01 => {
                 let type_parameter_index = self.reader.read_unsigned_byte()?;
@@ -123,7 +122,8 @@ impl<R: Read> Deserializer<R> {
     }
 
     fn deserialize_type_annotation(&mut self) -> DeserializeResult<TypeAnnotation> {
-        let target_info = self.deserialize_target_info()?;
+        let target_type = self.reader.read_unsigned_byte()?;
+        let target_info = self.deserialize_target_info(target_type)?;
         let target_path = self.deserialize_type_path()?;
         let type_index = self.reader.read_unsigned_short()?;
 
@@ -134,6 +134,7 @@ impl<R: Read> Deserializer<R> {
         }
 
         Ok(TypeAnnotation {
+            target_type,
             target_info,
             target_path,
             type_index,
@@ -148,12 +149,16 @@ impl<R: Read> Deserializer<R> {
             // byte
             b'B' | b'C' | b'D' | b'F' | b'I' | b'J' | b'S' | b'Z' | b's' => {
                 let const_value_index = self.reader.read_unsigned_short()?;
-                ElementValue::ConstValueIndex(const_value_index)
+                ElementValue::ConstValueIndex {
+                    tag,
+                    const_value_index,
+                }
             }
             b'e' => {
                 let type_name_index = self.reader.read_unsigned_short()?;
                 let const_name_index = self.reader.read_unsigned_short()?;
                 ElementValue::EnumConstValue {
+                    tag,
                     type_name_index,
                     const_name_index,
                 }
@@ -161,12 +166,15 @@ impl<R: Read> Deserializer<R> {
 
             b'c' => {
                 let class_info_index = self.reader.read_unsigned_short()?;
-                ElementValue::ClassInfoIndex(class_info_index)
+                ElementValue::ClassInfoIndex {
+                    tag,
+                    class_info_index,
+                }
             }
 
             b'@' => {
                 let annotation = self.deserialize_annotation()?;
-                ElementValue::AnnotationValue(annotation)
+                ElementValue::AnnotationValue { tag, annotation }
             }
 
             b'[' => {
@@ -176,7 +184,11 @@ impl<R: Read> Deserializer<R> {
                     values.push(self.deserialize_element_value()?);
                 }
 
-                ElementValue::ArrayValue { num_values, values }
+                ElementValue::ArrayValue {
+                    tag,
+                    num_values,
+                    values,
+                }
             }
             _ => unreachable!(),
         };
@@ -213,20 +225,20 @@ impl<R: Read> Deserializer<R> {
     fn deserialize_verification_type_info(&mut self) -> DeserializeResult<VerificationTypeInfo> {
         let tag = self.reader.read_unsigned_byte()?;
         let ver_type_info = match tag {
-            0x00 => VerificationTypeInfo::TopVariableInfo,
-            0x01 => VerificationTypeInfo::IntegerVariableInfo,
-            0x02 => VerificationTypeInfo::FloatVariableInfo,
-            0x03 => VerificationTypeInfo::DoubleVariableInfo,
-            0x04 => VerificationTypeInfo::LongVariableInfo,
-            0x05 => VerificationTypeInfo::NullVariableInfo,
-            0x06 => VerificationTypeInfo::UninitializedThisVariableInfo,
+            0x00 => VerificationTypeInfo::TopVariableInfo { tag },
+            0x01 => VerificationTypeInfo::IntegerVariableInfo { tag },
+            0x02 => VerificationTypeInfo::FloatVariableInfo { tag },
+            0x03 => VerificationTypeInfo::DoubleVariableInfo { tag },
+            0x04 => VerificationTypeInfo::LongVariableInfo { tag },
+            0x05 => VerificationTypeInfo::NullVariableInfo { tag },
+            0x06 => VerificationTypeInfo::UninitializedThisVariableInfo { tag },
             0x07 => {
                 let cpool_index = self.reader.read_unsigned_short()?;
-                VerificationTypeInfo::ObjectVariableInfo { cpool_index }
+                VerificationTypeInfo::ObjectVariableInfo { tag, cpool_index }
             }
             0x08 => {
                 let offset = self.reader.read_unsigned_short()?;
-                VerificationTypeInfo::UninitializedVariableInfo { offset }
+                VerificationTypeInfo::UninitializedVariableInfo { tag, offset }
             }
             _ => unreachable!(),
         };
@@ -478,8 +490,6 @@ impl<R: Read> Deserializer<R> {
                                             stack,
                                         }
                                     }
-
-                                    _ => unreachable!(),
                                 };
                                 entries.push(frame);
                             }

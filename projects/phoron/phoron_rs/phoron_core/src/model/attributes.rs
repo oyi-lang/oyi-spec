@@ -324,6 +324,7 @@ pub struct LocalVarEntry {
 
 #[derive(Debug)]
 pub struct TypeAnnotation {
+    pub target_type: u8,
     pub target_info: TargetInfo,
     pub target_path: TypePath,
     pub type_index: u16,
@@ -339,14 +340,25 @@ pub struct ParameterAnnotation {
 
 #[derive(Debug)]
 pub enum ElementValue {
-    ConstValueIndex(u16),
-    ClassInfoIndex(u16),
+    ConstValueIndex {
+        tag: u8,
+        const_value_index: u16,
+    },
+    ClassInfoIndex {
+        tag: u8,
+        class_info_index: u16,
+    },
     EnumConstValue {
+        tag: u8,
         type_name_index: u16,
         const_name_index: u16,
     },
-    AnnotationValue(Annotation),
+    AnnotationValue {
+        tag: u8,
+        annotation: Annotation,
+    },
     ArrayValue {
+        tag: u8,
         num_values: u16,
         values: Vec<ElementValue>,
     },
@@ -375,15 +387,15 @@ pub struct Class {
 
 #[derive(Debug)]
 pub enum VerificationTypeInfo {
-    TopVariableInfo,
-    IntegerVariableInfo,
-    FloatVariableInfo,
-    NullVariableInfo,
-    UninitializedThisVariableInfo,
-    ObjectVariableInfo { cpool_index: u16 },
-    UninitializedVariableInfo { offset: u16 },
-    LongVariableInfo,
-    DoubleVariableInfo,
+    TopVariableInfo { tag: u8 },
+    IntegerVariableInfo { tag: u8 },
+    FloatVariableInfo { tag: u8 },
+    NullVariableInfo { tag: u8 },
+    UninitializedThisVariableInfo { tag: u8 },
+    ObjectVariableInfo { tag: u8, cpool_index: u16 },
+    UninitializedVariableInfo { tag: u8, offset: u16 },
+    LongVariableInfo { tag: u8 },
+    DoubleVariableInfo { tag: u8 },
 }
 
 #[derive(Debug)]
