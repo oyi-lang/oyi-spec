@@ -210,6 +210,30 @@ impl<R: Read> Deserializer<R> {
         })
     }
 
+    fn deserialize_verification_type_info(&mut self) -> DeserializeResult<VerificationTypeInfo> {
+        let tag = self.reader.read_unsigned_byte()?;
+        let ver_type_info = match tag {
+            0x00 => VerificationTypeInfo::TopVariableInfo,
+            0x01 => VerificationTypeInfo::IntegerVariableInfo,
+            0x02 => VerificationTypeInfo::FloatVariableInfo,
+            0x03 => VerificationTypeInfo::DoubleVariableInfo,
+            0x04 => VerificationTypeInfo::LongVariableInfo,
+            0x05 => VerificationTypeInfo::NullVariableInfo,
+            0x06 => VerificationTypeInfo::UninitializedThisVariableInfo,
+            0x07 => {
+                let cpool_index = self.reader.read_unsigned_short()?;
+                VerificationTypeInfo::ObjectVariableInfo { cpool_index }
+            }
+            0x08 => {
+                let offset = self.reader.read_unsigned_short()?;
+                VerificationTypeInfo::UninitializedVariableInfo { offset }
+            }
+            _ => unreachable!(),
+        };
+
+        Ok(ver_type_info)
+    }
+
     /// Deserialize the attributes of the class file.
     fn deserialize_attributes(
         &mut self,
@@ -361,13 +385,111 @@ impl<R: Read> Deserializer<R> {
                                 local_variable_table,
                             });
                         }
+
                         predefined_attributes::STACK_MAP_TABLE => {
                             let number_of_entries = self.reader.read_unsigned_short()?;
+                            let mut entries = Vec::new();
+                            for _ in 0..number_of_entries {
+                                let frame_type = self.reader.read_unsigned_byte()?;
 
-                            //let mut entries = Vec::new();
-                            //for _ in 0..number_of_entries {
-                            //    let frame_type = self.reader.read_unsigned_byte()?;
-                            //}
+                                let frame = match frame_type {
+                                    // 0 - 63
+                                    0x00..=0x3f => StackMapFrame::SameFrame { frame_type },
+                                    // 64 - 127
+                                    0x40..=0x7f => {
+                                        let mut stack = Vec::with_capacity(1);
+                                        stack[0] = self.deserialize_verification_type_info()?;
+                                        StackMapFrame::SameLocals1StackItemFrame {
+                                            frame_type,
+                                            stack,
+                                        }
+                                    }
+
+                                    // 128 - 246 are reserved
+                                    0x80..=0xf6 => unreachable!(),
+
+                                    0xf7 => {
+                                        let offset_delta = self.reader.read_unsigned_short()?;
+                                        let mut stack = Vec::with_capacity(1);
+                                        stack[0] = self.deserialize_verification_type_info()?;
+
+                                        StackMapFrame::SameLocals1StackItemFrameExtended {
+                                            frame_type,
+                                            offset_delta,
+                                            stack,
+                                        }
+                                    }
+
+                                    // 248 - 250
+                                    0xf8..=0xfa => {
+                                        let offset_delta = self.reader.read_unsigned_short()?;
+                                        StackMapFrame::ChopFrame {
+                                            frame_type,
+                                            offset_delta,
+                                        }
+                                    }
+
+                                    // 251
+                                    0xfb => {
+                                        let offset_delta = self.reader.read_unsigned_short()?;
+                                        StackMapFrame::SameFrameExtended {
+                                            frame_type,
+                                            offset_delta,
+                                        }
+                                    }
+
+                                    0xfc..=0xfe => {
+                                        let offset_delta = self.reader.read_unsigned_short()?;
+                                        let mut locals = Vec::with_capacity(1);
+                                        locals[0] = self.deserialize_verification_type_info()?;
+
+                                        StackMapFrame::AppendFrame {
+                                            frame_type,
+                                            offset_delta,
+                                            locals,
+                                        }
+                                    }
+
+                                    // 255
+                                    0xff => {
+                                        let offset_delta = self.reader.read_unsigned_short()?;
+                                        let number_of_locals = self.reader.read_unsigned_short()?;
+
+                                        let mut locals =
+                                            Vec::with_capacity(number_of_locals as usize);
+                                        for _ in 0..number_of_locals {
+                                            locals.push(self.deserialize_verification_type_info()?);
+                                        }
+
+                                        let number_of_stack_items =
+                                            self.reader.read_unsigned_short()?;
+                                        let mut stack =
+                                            Vec::with_capacity(number_of_stack_items as usize);
+                                        for _ in 0..number_of_stack_items {
+                                            stack.push(self.deserialize_verification_type_info()?);
+                                        }
+
+                                        StackMapFrame::FullFrame {
+                                            frame_type,
+                                            offset_delta,
+                                            number_of_locals,
+                                            locals,
+                                            number_of_stack_items,
+                                            stack,
+                                        }
+                                    }
+
+                                    _ => unreachable!(),
+                                };
+                                entries.push(frame);
+                            }
+
+                            attributes.push(AttributeInfo::StackMapTable {
+                                attribute_name_index,
+                                attribute_length,
+                                number_of_entries,
+                                entries,
+                            });
                         }
                         predefined_attributes::INNER_CLASSES => {
                             let number_of_classes = self.reader.read_unsigned_short()?;

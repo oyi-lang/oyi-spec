@@ -375,15 +375,15 @@ pub struct Class {
 
 #[derive(Debug)]
 pub enum VerificationTypeInfo {
-    TopVariableInfo { tag: u8 },
-    IntegerVariableInfo { tag: u8 },
-    FloatVariableInfo { tag: u8 },
-    NullVariableInfo { tag: u8 },
-    UninitializedThisVariableInfo { tag: u8 },
-    ObjectVariableInfo { tag: u8, cpool_index: u16 },
-    UninitializedVariableInfo { tag: u8, offset: u16 },
-    LongVariableInfo { tag: u8 },
-    DoubleVariableInfo { tag: u8 },
+    TopVariableInfo,
+    IntegerVariableInfo,
+    FloatVariableInfo,
+    NullVariableInfo,
+    UninitializedThisVariableInfo,
+    ObjectVariableInfo { cpool_index: u16 },
+    UninitializedVariableInfo { offset: u16 },
+    LongVariableInfo,
+    DoubleVariableInfo,
 }
 
 #[derive(Debug)]
@@ -392,7 +392,7 @@ pub enum StackMapFrame {
         frame_type: u8,
     },
     SameLocals1StackItemFrame {
-        fraome_type: u8,
+        frame_type: u8,
         stack: Vec<VerificationTypeInfo>,
     },
 
