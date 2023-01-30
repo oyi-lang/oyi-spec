@@ -2,9 +2,7 @@
 
 use crate::{
     error::SerializeError,
-    model::{
-        attributes::AttributeInfo, constant_pool::types::CpInfo, ClassFile, FieldInfo, MethodInfo,
-    },
+    model::{attributes::*, constant_pool::types::*, *},
     rw::writer::Writer,
 };
 use std::io::Write;
@@ -20,6 +18,209 @@ pub struct Serializer<'a, W: Write> {
 impl<'a, W: Write> Serializer<'a, W> {
     pub fn new(writer: Writer<'a, W>) -> Self {
         Serializer { writer }
+    }
+
+    fn serialize_target_info(&mut self, target_info: &TargetInfo) -> SerializeResult<()> {
+        match target_info {
+            TargetInfo::TypeParameterTarget {
+                type_parameter_index,
+            } => self.writer.write_unsigned_byte(*type_parameter_index)?,
+
+            TargetInfo::SuperTypeTarget { supertype_index } => {
+                self.writer.write_unsigned_short(*supertype_index)?
+            }
+
+            TargetInfo::TypeParameterBoundTarget {
+                type_parameter_index,
+                bound_index,
+            } => {
+                self.writer.write_unsigned_byte(*type_parameter_index)?;
+                self.writer.write_unsigned_byte(*bound_index)?;
+            }
+
+            TargetInfo::EmptyTarget => {}
+
+            TargetInfo::FormalParameterTarget {
+                formal_parameter_index,
+            } => self.writer.write_unsigned_byte(*formal_parameter_index)?,
+
+            TargetInfo::ThrowsTarget { throws_type_index } => {
+                self.writer.write_unsigned_short(*throws_type_index)?
+            }
+
+            TargetInfo::LocalVarTarget {
+                table_length,
+                table,
+            } => {
+                self.writer.write_unsigned_short(*table_length)?;
+                for local_var in table {
+                    self.writer.write_unsigned_short(local_var.start_pc)?;
+                    self.writer.write_unsigned_short(local_var.length)?;
+                    self.writer.write_unsigned_short(local_var.index)?;
+                }
+            }
+
+            TargetInfo::CatchTarget {
+                exception_table_index,
+            } => self.writer.write_unsigned_short(*exception_table_index)?,
+
+            TargetInfo::OffsetTarget { offset } => self.writer.write_unsigned_short(*offset)?,
+
+            TargetInfo::TypeArgumentTarget {
+                offset,
+                type_argument_index,
+            } => {
+                self.writer.write_unsigned_short(*offset)?;
+                self.writer.write_unsigned_byte(*type_argument_index)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    fn serialize_type_path(&mut self, type_path: &TypePath) -> SerializeResult<()> {
+        self.writer.write_unsigned_byte(type_path.path_length)?;
+        for path in &type_path.path {
+            self.writer.write_unsigned_byte(path.type_path_kind)?;
+            self.writer.write_unsigned_byte(path.type_argument_index)?;
+        }
+
+        Ok(())
+    }
+
+    fn serialize_type_annotation(
+        &mut self,
+        type_annotation: &TypeAnnotation,
+    ) -> SerializeResult<()> {
+        self.writer
+            .write_unsigned_byte(type_annotation.target_type)?;
+        self.serialize_target_info(&type_annotation.target_info)?;
+        self.serialize_type_path(&type_annotation.target_path)?;
+        self.writer
+            .write_unsigned_short(type_annotation.type_index)?;
+        self.writer
+            .write_unsigned_short(type_annotation.num_element_value_pairs)?;
+
+        for ev_pair in &type_annotation.element_value_pairs {
+            self.serialize_element_value_pair(ev_pair)?;
+        }
+
+        Ok(())
+    }
+
+    fn serialize_element_value(&mut self, value: &ElementValue) -> SerializeResult<()> {
+        match value {
+            ElementValue::ConstValueIndex {
+                tag,
+                const_value_index,
+            } => {
+                self.writer.write_unsigned_byte(*tag)?;
+                self.writer.write_unsigned_short(*const_value_index)?;
+            }
+
+            ElementValue::ClassInfoIndex {
+                tag,
+                class_info_index,
+            } => {
+                self.writer.write_unsigned_byte(*tag)?;
+                self.writer.write_unsigned_short(*class_info_index)?;
+            }
+            ElementValue::EnumConstValue {
+                tag,
+                type_name_index,
+                const_name_index,
+            } => {
+                self.writer.write_unsigned_byte(*tag)?;
+                self.writer.write_unsigned_short(*type_name_index)?;
+                self.writer.write_unsigned_short(*const_name_index)?;
+            }
+
+            ElementValue::AnnotationValue { tag, annotation } => {
+                self.writer.write_unsigned_byte(*tag)?;
+                self.serialize_annotation(annotation)?;
+            }
+
+            ElementValue::ArrayValue {
+                tag,
+                num_values,
+                values,
+            } => {
+                self.writer.write_unsigned_byte(*tag)?;
+
+                self.writer.write_unsigned_short(*num_values)?;
+                for value in values {
+                    self.serialize_element_value(value)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    fn serialize_element_value_pair(&mut self, ev_pair: &ElementValuePair) -> SerializeResult<()> {
+        self.writer
+            .write_unsigned_short(ev_pair.element_name_index)?;
+        self.serialize_element_value(&ev_pair.value)?;
+        Ok(())
+    }
+
+    fn serialize_annotation(&mut self, annotation: &Annotation) -> SerializeResult<()> {
+        self.writer.write_unsigned_short(annotation.type_index)?;
+        self.writer
+            .write_unsigned_short(annotation.num_element_value_pairs)?;
+
+        for ev_pair in &annotation.element_value_pairs {
+            self.serialize_element_value_pair(&ev_pair)?;
+        }
+
+        Ok(())
+    }
+
+    fn serialize_verification_type_info(
+        &mut self,
+        ver_type_info: &VerificationTypeInfo,
+    ) -> SerializeResult<()> {
+        match ver_type_info {
+            VerificationTypeInfo::TopVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+
+            VerificationTypeInfo::IntegerVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+
+            VerificationTypeInfo::FloatVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+
+            VerificationTypeInfo::NullVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+
+            VerificationTypeInfo::UninitializedThisVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+
+            VerificationTypeInfo::ObjectVariableInfo { tag, cpool_index } => {
+                self.writer.write_unsigned_byte(*tag)?;
+                self.writer.write_unsigned_short(*cpool_index)?;
+            }
+
+            VerificationTypeInfo::UninitializedVariableInfo { tag, offset } => {
+                self.writer.write_unsigned_byte(*tag)?;
+                self.writer.write_unsigned_short(*offset)?;
+            }
+
+            VerificationTypeInfo::LongVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+
+            VerificationTypeInfo::DoubleVariableInfo { tag } => {
+                self.writer.write_unsigned_byte(*tag)?
+            }
+        }
+
+        Ok(())
     }
 
     /// Serialize the attributes of the class file.
@@ -138,7 +339,497 @@ impl<'a, W: Write> Serializer<'a, W> {
                         self.writer.write_unsigned_short(local_var.index)?;
                     }
                 }
-                _ => todo!(),
+
+                AttributeInfo::StackMapTable {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_entries,
+                    entries,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*number_of_entries)?;
+                    for entry in entries {
+                        match entry {
+                            StackMapFrame::SameFrame { frame_type } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                            }
+
+                            StackMapFrame::SameLocals1StackItemFrame { frame_type, stack } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                                self.serialize_verification_type_info(&stack[0])?;
+                            }
+
+                            StackMapFrame::SameLocals1StackItemFrameExtended {
+                                frame_type,
+                                offset_delta,
+                                stack,
+                            } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                                self.writer.write_unsigned_short(*offset_delta)?;
+                                self.serialize_verification_type_info(&stack[0])?;
+                            }
+
+                            StackMapFrame::ChopFrame {
+                                frame_type,
+                                offset_delta,
+                            } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                                self.writer.write_unsigned_short(*offset_delta)?;
+                            }
+
+                            StackMapFrame::SameFrameExtended {
+                                frame_type,
+                                offset_delta,
+                            } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                                self.writer.write_unsigned_short(*offset_delta)?;
+                            }
+
+                            StackMapFrame::AppendFrame {
+                                frame_type,
+                                offset_delta,
+                                locals,
+                            } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                                self.writer.write_unsigned_short(*offset_delta)?;
+
+                                for local in locals {
+                                    self.serialize_verification_type_info(local)?;
+                                }
+                            }
+
+                            StackMapFrame::FullFrame {
+                                frame_type,
+                                offset_delta,
+                                number_of_locals,
+                                locals,
+                                number_of_stack_items,
+                                stack,
+                            } => {
+                                self.writer.write_unsigned_byte(*frame_type)?;
+                                self.writer.write_unsigned_short(*offset_delta)?;
+
+                                self.writer.write_unsigned_short(*number_of_locals)?;
+                                for local in locals {
+                                    self.serialize_verification_type_info(local)?;
+                                }
+
+                                self.writer.write_unsigned_short(*number_of_stack_items)?;
+                                for st_item in stack {
+                                    self.serialize_verification_type_info(st_item)?;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                AttributeInfo::InnerClasses {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_classes,
+                    classes,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*number_of_classes)?;
+                    for Class {
+                        inner_class_info_index,
+                        outer_class_info_index,
+                        inner_name_index,
+                        inner_class_access_flags,
+                    } in classes
+                    {
+                        self.writer.write_unsigned_short(*inner_class_info_index)?;
+                        self.writer.write_unsigned_short(*outer_class_info_index)?;
+                        self.writer.write_unsigned_short(*inner_name_index)?;
+                        self.writer
+                            .write_unsigned_short(*inner_class_access_flags)?;
+                    }
+                }
+
+                AttributeInfo::EnclosingMethod {
+                    attribute_name_index,
+                    attribute_length,
+                    class_index,
+                    method_index,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                    self.writer.write_unsigned_short(*class_index)?;
+                    self.writer.write_unsigned_short(*method_index)?;
+                }
+
+                AttributeInfo::Synthetic {
+                    attribute_name_index,
+                    attribute_length,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                }
+
+                AttributeInfo::Signature {
+                    attribute_name_index,
+                    attribute_length,
+                    signature_index,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                    self.writer.write_unsigned_short(*signature_index)?;
+                }
+
+                AttributeInfo::SourceDebugExtension {
+                    attribute_name_index,
+                    attribute_length,
+                    debug_extension,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    for b in debug_extension {
+                        self.writer.write_unsigned_byte(*b)?;
+                    }
+                }
+
+                AttributeInfo::LocalVariableTypeTable {
+                    attribute_name_index,
+                    attribute_length,
+                    local_variable_type_table_length,
+                    local_variable_type_table,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer
+                        .write_unsigned_short(*local_variable_type_table_length)?;
+                    for LocalVariableType {
+                        start_pc,
+                        length,
+                        name_index,
+                        signature_index,
+                        index,
+                    } in local_variable_type_table
+                    {
+                        self.writer.write_unsigned_short(*start_pc)?;
+                        self.writer.write_unsigned_short(*length)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                        self.writer.write_unsigned_short(*signature_index)?;
+                        self.writer.write_unsigned_short(*index)?;
+                    }
+                }
+
+                AttributeInfo::Deprecated {
+                    attribute_name_index,
+                    attribute_length,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                }
+
+                AttributeInfo::RuntimeVisibleAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*num_annotations)?;
+                    for annotation in annotations {
+                        self.serialize_annotation(annotation)?;
+                    }
+                }
+
+                AttributeInfo::RuntimeInvisibleAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*num_annotations)?;
+                    for annotation in annotations {
+                        self.serialize_annotation(annotation)?;
+                    }
+                }
+
+                AttributeInfo::RuntimeVisibleParameterAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_parameters,
+                    parameter_annotations,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_byte(*num_parameters)?;
+                    for parameter_annotation in parameter_annotations {
+                        self.writer
+                            .write_unsigned_short(parameter_annotation.num_annotations)?;
+                        for annotation in &parameter_annotation.annotations {
+                            self.serialize_annotation(annotation)?;
+                        }
+                    }
+                }
+
+                AttributeInfo::RuntimeInvisibleParameterAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_parameters,
+                    parameter_annotations,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_byte(*num_parameters)?;
+
+                    for parameter_annotation in parameter_annotations {
+                        self.writer
+                            .write_unsigned_short(parameter_annotation.num_annotations)?;
+                        for annotation in &parameter_annotation.annotations {
+                            self.serialize_annotation(annotation)?;
+                        }
+                    }
+                }
+
+                AttributeInfo::RuntimeVisibleTypeAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*num_annotations)?;
+
+                    for type_annotation in annotations {
+                        self.serialize_type_annotation(type_annotation)?;
+                    }
+                }
+
+                AttributeInfo::RuntimeInvisibleTypeAnnotations {
+                    attribute_name_index,
+                    attribute_length,
+                    num_annotations,
+                    annotations,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*num_annotations)?;
+
+                    for type_annotation in annotations {
+                        self.serialize_type_annotation(type_annotation)?;
+                    }
+                }
+
+                AttributeInfo::AnnotationDefault {
+                    attribute_name_index,
+                    attribute_length,
+                    default_value,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                    self.serialize_element_value(default_value)?;
+                }
+
+                AttributeInfo::BootstrapMethods {
+                    attribute_name_index,
+                    attribute_length,
+                    num_bootstrap_methods,
+                    bootstrap_methods,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*num_bootstrap_methods)?;
+                    for bootstrap_method in bootstrap_methods {
+                        self.writer
+                            .write_unsigned_short(bootstrap_method.bootstrap_method_ref)?;
+
+                        self.writer
+                            .write_unsigned_short(bootstrap_method.num_bootstrap_arguments)?;
+                        for bootstrap_arg in &bootstrap_method.bootstrap_arguments {
+                            self.writer.write_unsigned_short(*bootstrap_arg)?;
+                        }
+                    }
+                }
+
+                AttributeInfo::MethodParameters {
+                    attribute_name_index,
+                    attribute_length,
+                    parameters_count,
+                    parameters,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_byte(*parameters_count)?;
+                    for param in parameters {
+                        self.writer.write_unsigned_short(param.name_index)?;
+                        self.writer.write_unsigned_short(param.access_flags)?;
+                    }
+                }
+
+                AttributeInfo::Module {
+                    attribute_name_index,
+                    attribute_length,
+                    module_name_index,
+                    module_flags,
+                    module_version_index,
+                    requires_count,
+                    requires,
+                    exports_count,
+                    exports,
+                    opens_count,
+                    opens,
+                    uses_count,
+                    uses_index,
+                    provides_count,
+                    provides,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*module_name_index)?;
+                    self.writer.write_unsigned_short(*module_flags)?;
+                    self.writer.write_unsigned_short(*module_version_index)?;
+
+                    self.writer.write_unsigned_short(*requires_count)?;
+                    for require in requires {
+                        self.writer.write_unsigned_short(require.requires_index)?;
+                        self.writer.write_unsigned_short(require.requires_flags)?;
+                        self.writer
+                            .write_unsigned_short(require.requires_version_index)?;
+                    }
+
+                    self.writer.write_unsigned_short(*exports_count)?;
+                    for export in exports {
+                        self.writer.write_unsigned_short(export.exports_index)?;
+                        self.writer.write_unsigned_short(export.exports_flags)?;
+                        self.writer.write_unsigned_short(export.exports_to_count)?;
+
+                        for s in &export.exports_to_index {
+                            self.writer.write_unsigned_short(*s)?;
+                        }
+                    }
+
+                    self.writer.write_unsigned_short(*opens_count)?;
+                    for open in opens {
+                        self.writer.write_unsigned_short(open.opens_index)?;
+                        self.writer.write_unsigned_short(open.opens_flags)?;
+                        self.writer.write_unsigned_short(open.opens_to_count)?;
+
+                        for s in &open.opens_to_index {
+                            self.writer.write_unsigned_short(*s)?;
+                        }
+                    }
+
+                    self.writer.write_unsigned_short(*uses_count)?;
+                    for s in uses_index {
+                        self.writer.write_unsigned_short(*s)?;
+                    }
+
+                    self.writer.write_unsigned_short(*provides_count)?;
+                    for provide in provides {
+                        self.writer.write_unsigned_short(provide.provides_index)?;
+                        self.writer
+                            .write_unsigned_short(provide.provides_with_count)?;
+
+                        for s in &provide.provides_with_index {
+                            self.writer.write_unsigned_short(*s)?;
+                        }
+                    }
+                }
+
+                AttributeInfo::ModulePackages {
+                    attribute_name_index,
+                    attribute_length,
+                    package_count,
+                    package_index,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*package_count)?;
+                    for s in package_index {
+                        self.writer.write_unsigned_short(*s)?;
+                    }
+                }
+
+                AttributeInfo::ModuleMainClass {
+                    attribute_name_index,
+                    attribute_length,
+                    main_class_index,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                    self.writer.write_unsigned_short(*main_class_index)?;
+                }
+
+                AttributeInfo::NestHost {
+                    attribute_name_index,
+                    attribute_length,
+                    host_class_index,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+                    self.writer.write_unsigned_short(*host_class_index)?;
+                }
+
+                AttributeInfo::NestMembers {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_classes,
+                    classes,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*number_of_classes)?;
+                    for s in classes {
+                        self.writer.write_unsigned_short(*s)?;
+                    }
+                }
+
+                AttributeInfo::Record {
+                    attribute_name_index,
+                    attribute_length,
+                    components_count,
+                    components,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*components_count)?;
+                    for comp in components {
+                        self.writer.write_unsigned_short(comp.name_index)?;
+                        self.writer.write_unsigned_short(comp.descriptor_index)?;
+                        self.writer.write_unsigned_short(comp.attributes_count)?;
+                        self.serialize_attributes(&comp.attributes)?;
+                    }
+                }
+
+                AttributeInfo::PermittedSubclasses {
+                    attribute_name_index,
+                    attribute_length,
+                    number_of_classes,
+                    classes,
+                } => {
+                    self.writer.write_unsigned_short(*attribute_name_index)?;
+                    self.writer.write_unsigned_int(*attribute_length)?;
+
+                    self.writer.write_unsigned_short(*number_of_classes)?;
+                    for s in classes {
+                        self.writer.write_unsigned_short(*s)?;
+                    }
+                }
             }
         }
 
@@ -171,126 +862,152 @@ impl<'a, W: Write> Serializer<'a, W> {
     }
 
     /// Serialize the contents of the Constant Pool.
-    fn serialize_constant_pool(&mut self, constant_pool: &[CpInfo]) -> SerializeResult<()> {
+    fn serialize_constant_pool(
+        &mut self,
+        constant_pool: &Vec<Option<CpInfo>>,
+    ) -> SerializeResult<()> {
         for cp_info in constant_pool {
-            match cp_info {
-                CpInfo::ConstantInvalidDefault => unreachable!(),
+            if let Some(cp_info) = cp_info {
+                match cp_info {
+                    CpInfo::ConstantMethodrefInfo {
+                        tag,
+                        class_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*class_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
 
-                CpInfo::ConstantMethodrefInfo {
-                    tag,
-                    class_index,
-                    name_and_type_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index)?;
-                    self.writer.write_unsigned_short(*name_and_type_index)?;
-                }
+                    CpInfo::ConstantClassInfo { tag, name_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                    }
 
-                CpInfo::ConstantClassInfo { tag, name_index } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*name_index)?;
-                }
+                    CpInfo::ConstantFieldrefInfo {
+                        tag,
+                        class_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*class_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
 
-                CpInfo::ConstantFieldrefInfo {
-                    tag,
-                    class_index,
-                    name_and_type_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index)?;
-                    self.writer.write_unsigned_short(*name_and_type_index)?;
-                }
+                    CpInfo::ConstantInterfaceMethodrefInfo {
+                        tag,
+                        class_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*class_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
 
-                CpInfo::ConstantInterfaceMethodrefInfo {
-                    tag,
-                    class_index,
-                    name_and_type_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*class_index)?;
-                    self.writer.write_unsigned_short(*name_and_type_index)?;
-                }
+                    CpInfo::ConstantStringInfo { tag, string_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*string_index)?;
+                    }
 
-                CpInfo::ConstantStringInfo { tag, string_index } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*string_index)?;
-                }
+                    CpInfo::ConstantIntegerInfo { tag, bytes } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*bytes)?;
+                    }
 
-                CpInfo::ConstantIntegerInfo { tag, bytes } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*bytes)?;
-                }
+                    CpInfo::ConstantFloatInfo { tag, bytes } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*bytes)?;
+                    }
 
-                CpInfo::ConstantFloatInfo { tag, bytes } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*bytes)?;
-                }
+                    CpInfo::ConstantLongInfo {
+                        tag,
+                        high_bytes,
+                        low_bytes,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*high_bytes)?;
+                        self.writer.write_unsigned_int(*low_bytes)?;
+                    }
 
-                CpInfo::ConstantLongInfo {
-                    tag,
-                    high_bytes,
-                    low_bytes,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*high_bytes)?;
-                    self.writer.write_unsigned_int(*low_bytes)?;
-                }
+                    CpInfo::ConstantDoubleInfo {
+                        tag,
+                        high_bytes,
+                        low_bytes,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_int(*high_bytes)?;
+                        self.writer.write_unsigned_int(*low_bytes)?;
+                    }
 
-                CpInfo::ConstantDoubleInfo {
-                    tag,
-                    high_bytes,
-                    low_bytes,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_int(*high_bytes)?;
-                    self.writer.write_unsigned_int(*low_bytes)?;
-                }
+                    CpInfo::ConstantNameAndTypeInfo {
+                        tag,
+                        name_index,
+                        descriptor_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                        self.writer.write_unsigned_short(*descriptor_index)?;
+                    }
 
-                CpInfo::ConstantNameAndTypeInfo {
-                    tag,
-                    name_index,
-                    descriptor_index,
-                } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*name_index)?;
-                    self.writer.write_unsigned_short(*descriptor_index)?;
-                }
+                    CpInfo::ConstantUtf8Info { tag, length, bytes } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*length)?;
 
-                CpInfo::ConstantUtf8Info { tag, length, bytes } => {
-                    self.writer.write_unsigned_byte(*tag)?;
-                    self.writer.write_unsigned_short(*length)?;
+                        for b in bytes {
+                            self.writer.write_unsigned_byte(*b)?;
+                        }
+                    }
 
-                    for b in bytes {
-                        self.writer.write_unsigned_byte(*b)?;
+                    CpInfo::ConstantMethodHandleInfo {
+                        tag,
+                        reference_kind,
+                        reference_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_byte(*reference_kind)?;
+                        self.writer.write_unsigned_short(*reference_index)?;
+                    }
+
+                    CpInfo::ConstantMethodTypeInfo {
+                        tag,
+                        descriptor_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*descriptor_index)?;
+                    }
+
+                    CpInfo::ConstantDynamicInfo {
+                        tag,
+                        bootstrap_method_attr_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer
+                            .write_unsigned_short(*bootstrap_method_attr_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
+
+                    CpInfo::ConstantInvokeDynamicInfo {
+                        tag,
+                        bootstrap_method_attr_index,
+                        name_and_type_index,
+                    } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer
+                            .write_unsigned_short(*bootstrap_method_attr_index)?;
+                        self.writer.write_unsigned_short(*name_and_type_index)?;
+                    }
+
+                    CpInfo::ConstantModuleInfo { tag, name_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
+                    }
+
+                    CpInfo::ConstantPackageInfo { tag, name_index } => {
+                        self.writer.write_unsigned_byte(*tag)?;
+                        self.writer.write_unsigned_short(*name_index)?;
                     }
                 }
-
-                CpInfo::ConstantMethodHandleInfo {
-                    tag,
-                    reference_kind,
-                    reference_index,
-                } => {}
-
-                CpInfo::ConstantMethodTypeInfo {
-                    tag,
-                    descriptor_index,
-                } => {}
-
-                CpInfo::ConstantDynamicInfo {
-                    tag,
-                    bootstrap_method_attr_index,
-                    name_and_type_index,
-                } => {}
-
-                CpInfo::ConstantInvokeDynamicInfo {
-                    tag,
-                    bootstrap_method_attr_index,
-                    name_and_type_index,
-                } => {}
-
-                CpInfo::ConstantModuleInfo { tag, name_index } => {}
-
-                CpInfo::ConstantPackageInfo { tag, name_index } => {}
             }
         }
 
@@ -421,74 +1138,75 @@ mod test {
             major_version: 45,
             constant_pool_count: 14,
             constant_pool: vec![
-                ConstantMethodrefInfo {
+                None,
+                Some(ConstantMethodrefInfo {
                     tag: 10,
                     class_index: 13,
                     name_and_type_index: 7,
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 16,
                     bytes: vec![
                         106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 79, 98, 106, 101, 99, 116,
                     ],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 10,
                     bytes: vec![83, 111, 117, 114, 99, 101, 70, 105, 108, 101],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 6,
                     bytes: vec![60, 105, 110, 105, 116, 62],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 4,
                     bytes: vec![109, 97, 105, 110],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 7,
                     bytes: vec![77, 105, 110, 105, 109, 97, 108],
-                },
-                ConstantNameAndTypeInfo {
+                }),
+                Some(ConstantNameAndTypeInfo {
                     tag: 12,
                     name_index: 4,
                     descriptor_index: 11,
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 4,
                     bytes: vec![67, 111, 100, 101],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 12,
                     bytes: vec![77, 105, 110, 105, 109, 97, 108, 46, 106, 97, 118, 97],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 22,
                     bytes: vec![
                         40, 91, 76, 106, 97, 118, 97, 47, 108, 97, 110, 103, 47, 83, 116, 114, 105,
                         110, 103, 59, 41, 86,
                     ],
-                },
-                ConstantUtf8Info {
+                }),
+                Some(ConstantUtf8Info {
                     tag: 1,
                     length: 3,
                     bytes: vec![40, 41, 86],
-                },
-                ConstantClassInfo {
+                }),
+                Some(ConstantClassInfo {
                     tag: 7,
                     name_index: 6,
-                },
-                ConstantClassInfo {
+                }),
+                Some(ConstantClassInfo {
                     tag: 7,
                     name_index: 2,
-                },
+                }),
             ],
             access_flags: 33,
             this_class: 12,

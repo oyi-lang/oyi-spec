@@ -113,14 +113,14 @@ pub enum AttributeInfo {
     RuntimeVisibleParameterAnnotations {
         attribute_name_index: u16,
         attribute_length: u32,
-        num_parameters: u16,
+        num_parameters: u8,
         parameter_annotations: Vec<ParameterAnnotation>,
     },
 
     RuntimeInvisibleParameterAnnotations {
         attribute_name_index: u16,
         attribute_length: u32,
-        num_parameters: u16,
+        num_parameters: u8,
         parameter_annotations: Vec<ParameterAnnotation>,
     },
 
@@ -134,6 +134,7 @@ pub enum AttributeInfo {
     RuntimeInvisibleTypeAnnotations {
         attribute_name_index: u16,
         attribute_length: u32,
+        num_annotations: u16,
         annotations: Vec<TypeAnnotation>,
     },
 
@@ -250,7 +251,7 @@ pub struct Export {
 #[derive(Debug)]
 pub struct Require {
     pub requires_index: u16,
-    pub reequires_flags: u16,
+    pub requires_flags: u16,
     pub requires_version_index: u16,
 }
 
@@ -263,7 +264,7 @@ pub struct Parameter {
 #[derive(Debug)]
 pub struct BootstrapMethod {
     pub bootstrap_method_ref: u16,
-    pub num_bootstrap_arguments: u32,
+    pub num_bootstrap_arguments: u16,
     pub bootstrap_arguments: Vec<u16>,
 }
 
@@ -339,11 +340,25 @@ pub struct ParameterAnnotation {
 
 #[derive(Debug)]
 pub enum ElementValue {
+    ConstValueIndex {
+        tag: u8,
+        const_value_index: u16,
+    },
+    ClassInfoIndex {
+        tag: u8,
+        class_info_index: u16,
+    },
     EnumConstValue {
+        tag: u8,
         type_name_index: u16,
         const_name_index: u16,
     },
+    AnnotationValue {
+        tag: u8,
+        annotation: Annotation,
+    },
     ArrayValue {
+        tag: u8,
         num_values: u16,
         values: Vec<ElementValue>,
     },
@@ -389,7 +404,7 @@ pub enum StackMapFrame {
         frame_type: u8,
     },
     SameLocals1StackItemFrame {
-        fraome_type: u8,
+        frame_type: u8,
         stack: Vec<VerificationTypeInfo>,
     },
 
