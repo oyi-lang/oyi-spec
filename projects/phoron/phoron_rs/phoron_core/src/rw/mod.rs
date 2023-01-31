@@ -1,3 +1,5 @@
+//! Module to handle the low-level reading and writing of JVM bytecode.
+
 pub mod reader;
 pub mod writer;
 
