@@ -1,4 +1,8 @@
-use phoron_core::{deserializer::Deserializer, rw::reader::Reader};
+use phoron_core::{
+    deserializer::Deserializer,
+    rw::{reader::Reader, writer::Writer},
+    serializer::Serializer,
+};
 use std::env;
 use std::fs::File;
 
@@ -17,6 +21,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut deserializer = Deserializer::new(Reader::new(File::open(&args[0])?));
     let classfile = deserializer.deserialize()?;
     println!("{:#?}", classfile);
+
+    let mut outfile = File::create("out.class")?;
+    let mut serializer = Serializer::new(Writer::new(&mut outfile));
+    serializer.serialize(&classfile)?;
 
     Ok(())
 }

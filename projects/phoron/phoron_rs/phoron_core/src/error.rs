@@ -1,7 +1,10 @@
+//! The error types for handling serialization and deserialization of JVM bytecode.
+
 use std::error::Error;
 use std::fmt;
 use std::io;
 
+/// Error type for errors encountered while reading JVM bytecode from a raw bytestream.
 #[derive(Debug)]
 pub struct ReadError {
     message: String,
@@ -29,6 +32,7 @@ impl From<io::Error> for ReadError {
     }
 }
 
+/// Error type for errors encountered while reading a raw JVM bytecode stream.
 #[derive(Debug)]
 pub struct WriteError {
     message: String,
@@ -56,6 +60,8 @@ impl From<io::Error> for WriteError {
     }
 }
 
+/// Error type for errors encountered while serializing the object model representation of JVM
+/// bytecode into a raw bytecode stream.
 #[derive(Debug)]
 pub struct SerializeError {
     message: String,
@@ -83,6 +89,8 @@ impl From<WriteError> for SerializeError {
     }
 }
 
+/// Error type for errors encountered while deserializing raw JVM bytecode into the object model
+/// representation.
 #[derive(Debug)]
 pub struct DeserializeError {
     message: String,

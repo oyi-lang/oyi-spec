@@ -5,4 +5,4 @@ The onus of ensuring that the feature-set matches the correct JVM version as wel
 
 ## Version Support History
 
-  - JVM 19 []
+  - [JVMS 19](https://docs.oracle.com/javase/specs/jvms/se19/html/index.html) [✓]

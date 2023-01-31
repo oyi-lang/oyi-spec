@@ -1,3 +1,6 @@
+//! The `phoron_core` object model representation of JVM bytecode. This is a straightforward
+//! 1:1 mapping to the JVM bytecode specification.
+
 pub mod attributes;
 pub mod constant_pool;
 

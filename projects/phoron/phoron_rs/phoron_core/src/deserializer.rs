@@ -410,7 +410,7 @@ impl<R: Read> Deserializer<R> {
                                     // 64 - 127
                                     0x40..=0x7f => {
                                         let mut stack = Vec::with_capacity(1);
-                                        stack[0] = self.deserialize_verification_type_info()?;
+                                        stack.push(self.deserialize_verification_type_info()?);
                                         StackMapFrame::SameLocals1StackItemFrame {
                                             frame_type,
                                             stack,
@@ -423,7 +423,7 @@ impl<R: Read> Deserializer<R> {
                                     0xf7 => {
                                         let offset_delta = self.reader.read_unsigned_short()?;
                                         let mut stack = Vec::with_capacity(1);
-                                        stack[0] = self.deserialize_verification_type_info()?;
+                                        stack.push(self.deserialize_verification_type_info()?);
 
                                         StackMapFrame::SameLocals1StackItemFrameExtended {
                                             frame_type,
@@ -453,7 +453,7 @@ impl<R: Read> Deserializer<R> {
                                     0xfc..=0xfe => {
                                         let offset_delta = self.reader.read_unsigned_short()?;
                                         let mut locals = Vec::with_capacity(1);
-                                        locals[0] = self.deserialize_verification_type_info()?;
+                                        locals.push(self.deserialize_verification_type_info()?);
 
                                         StackMapFrame::AppendFrame {
                                             frame_type,
@@ -1195,6 +1195,7 @@ impl<R: Read> Deserializer<R> {
         Ok(constant_pool)
     }
 
+    /// Deserialize the class file into the object model.
     pub fn deserialize(&mut self) -> DeserializeResult<ClassFile> {
         // Headers
         let magic = self.reader.read_unsigned_int()?;
