@@ -4,9 +4,6 @@ This project provides the low-level functionality of interacting with the JVM, a
 
   - generating `class` files from the object rrpresentation, and
   - generating object representations from `class` files
-  - feature checks against JVM versions
-
-For details on the object representation, see [Object Model](doc/object_model.md) document.
 
 ## Build
 
@@ -15,7 +12,9 @@ For details on the object representation, see [Object Model](doc/object_model.md
     $ cargo test --release
   ```
 
-## Demo
+## Usage
+
+Refer to the tests.
 
 ## Planned Features
 
