@@ -13,3 +13,5 @@ categories = ["compilers", "parser-implementations"]
 edition = "2021"
 
 [dependencies]
+
+phoron_core = "0.3.0"
