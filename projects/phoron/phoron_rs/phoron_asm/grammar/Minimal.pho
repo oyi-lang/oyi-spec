@@ -1,0 +1,17 @@
+.class public Minimal/
+.super java/lang/Object
+
+.field public x I = 100
+.field private y I
+.field protected z F = 100.200
+.field public static FOO Ljava/lang/String;
+.field private final grid [[I
+
+.method public <init>()V
+.end method
+
+.method public static main([Ljava/lang/String;)V
+  .limit stack 1
+  .limit locals 1
+  .throws java/lang/RuntimeException
+.end method
