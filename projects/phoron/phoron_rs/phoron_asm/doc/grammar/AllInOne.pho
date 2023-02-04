@@ -24,6 +24,21 @@
       ((aload_0)
        (invokespecial java/lang/Object/<init> ()V)
        (return))))
+  (defmethod lookupSwitchDemo
+    (method-access-flags (public static))
+    (method-descriptor ()I)
+    (method-directives 
+      ((stack-limit 3)
+       (locals-limit 2)))
+    (method-body
+      ((iconst_0)
+       (istore_1)
+       (iload_1)
+       (lookupswitch
+        ((1 ((iconst_1) (ireturn)))
+         (10 ((iconst_2) (ireturn)))
+         (100 ((iconst_3) (ireturn)))
+         (default ((iconst_0) (ireturn))))))))
   (defmethod main
     (method-access-flags (public static))
     (method-descriptor ([Ljava/lang/String;)V)

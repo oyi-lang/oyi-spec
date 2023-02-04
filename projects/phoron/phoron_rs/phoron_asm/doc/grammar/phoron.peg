@@ -80,16 +80,24 @@ LocalsLimitDirective <- LOCALS_LIMIT_keyword Integer
 ThrowsDirective <- THROWS_keyword ClassName
 
 MethodBody <- LPAREN_symbol METHOD_BODY_keyword MethodStatements RPAREN_symbol
-MethodStatements <- LPAREN_symbol MethodStatement* RPAREN_symbol
+MethodStatements <- LPAREN_symbol MethodStatement+ RPAREN_symbol
 MethodStatement <- LPAREN_symbol Instruction RPAREN_symbol skip
 Instruction <- 
     ALOAD_0 
     / ATHROW
     / DUP
     / GETSTATIC
+    / ICONST_0
+    / ICONST_1
+    / ICONST_2
+    / ICONST_3
+    / ILOAD_1
     / INVOKESPECIAL 
     / INVOKEVIRTUAL
+    / IRETURN
+    / ISTORE_1
     / LDC
+    / LOOKUPSWITCH
     / NEW
     / POP
     / TRY
@@ -101,9 +109,22 @@ ALOAD_0        <-  'aload_0'        skip
 ATHROW         <-  'athrow'         skip
 DUP            <-  'dup'            skip
 GETSTATIC      <-  'getstatic'      skip              FieldName      FieldDescriptorDescriptor
+ICONST_0 <- 'iconst_0' skip
+ICONST_1 <- 'iconst_1' skip
+ICONST_2 <- 'iconst_2' skip
+ICONST_3 <- 'iconst_3' skip
+ILOAD_1 <- 'iload_1' skip
 INVOKESPECIAL  <-  'invokespecial'  skip              MethodName     MethodDescriptorDescriptor
 INVOKEVIRTUAL  <-  'invokevirtual'  skip              MethodName     MethodDescriptorDescriptor
+IRETURN <- 'ireturn' skip
+ISTORE_1 <- 'istore_1' skip
 LDC            <-  'ldc'            skip              QuotedString   skip
+
+LOOKUPSWITCH <- LOOKUP_SWITCH_keyword LookupSwitchPairList
+LookupSwitchPairList <- LPAREN_symbol LookupSwitchPair* RPAREN_symbol
+LookupSwitchPair <- LPAREN_symbol (Integer / DEFAULT_keyword) MethodStatements RPAREN_symbol
+DefaultSwitchPair <- LPAREN_symbol DEFAULT_keyword MethodStatements RPAREN_symbol
+
 NEW            <-  NEW_keyword      ClassName
 POP            <-  'pop'            skip
 RETURN         <-  'return'         skip
@@ -113,6 +134,7 @@ TRY            <-  TRY_keyword      MethodStatements  CATCH_keyword  ClassName  
 
 ACCESS_FLAGS_keyword        <-  'access-flags'         skip
 CATCH_keyword               <-  'catch'                skip
+DEFAULT_keyword <- 'default' skip
 DEFCLASS_keyword            <-  'defclass'             skip
 DEFFIELD_keyword            <-  'deffield'             skip
 DEFMETHOD_keyword           <-  'defmethod'            skip
@@ -122,6 +144,7 @@ FIELD_INIT_VALUE_keyword    <-  'field-init-value'     skip
 FINAL_keyword               <-  'final'                skip
 IMPLEMENTS_keyword          <-  'implements'           skip
 LOCALS_LIMIT_keyword        <-  'locals-limit'         skip
+LOOKUP_SWITCH_keyword <- 'lookupswitch' skip
 METHOD_ACCESS_FLAG_keyword  <-  'method-access-flags'  skip
 METHOD_BODY_keyword         <-  'method-body'          skip
 METHOD_DESCRIPTOR_keyword   <-  'method-descriptor'    skip
