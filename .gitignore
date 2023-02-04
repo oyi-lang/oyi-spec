@@ -18,3 +18,5 @@
 **/*.install
 **/_opam/
 **/target/
+projects/phoron/phoron_rs/phoron_asm/doc/grammar/phoron.c
+projects/phoron/phoron_rs/phoron_asm/doc/grammar/phoron

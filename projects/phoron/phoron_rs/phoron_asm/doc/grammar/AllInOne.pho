@@ -1,0 +1,48 @@
+(defclass AllInOne
+  (access-flags (public static)) 
+  (super java/lang/Object)
+  (implements java/lang/Serializable)
+  (implements java/lang/Runnable)
+  (deffield x
+    (field-access-flags (private))
+    (field-descriptor I))
+  (deffield y
+    (field-access-flags (private))
+    (field-descriptor D)
+    (field-init-value 3.14159))
+  (deffield z
+    (field-access-flags (public static final))
+    (field-descriptor Ljava/lang/String;)
+    (field-init-value "FooBar"))
+  (defmethod <init>
+    (method-access-flags (public))
+    (method-descriptor ()V)
+    (method-directives 
+      ((stack-limit 1)
+       (locals-limit 1)))
+    (method-body 
+      ((aload_0)
+       (invokespecial java/lang/Object/<init> ()V)
+       (return))))
+  (defmethod main
+    (method-access-flags (public static))
+    (method-descriptor ([Ljava/lang/String;)V)
+    (method-directives
+      ((stack-limit 2)
+       (locals-limit 1)
+       (throws java/lang/RuntimeException)))
+    (method-body
+      ((getstatic java/lang/System/out Ljava/io/PrintStream;)
+       (ldc "Hello, world")
+       (invokevirtual java/io/PrintStream/println (Ljava/lang/String;)V)
+       (try
+          ((new java/lang/Exception)
+           (dup)
+           (invokespecial java/lang/Exception/<init> ()V)
+           (athrow))
+        catch java/lang/Exception
+         ((pop)
+          (getstatic java/lang/System/out Ljava/io/PrintStream;)
+          (ldc "Exception caight")
+          (invokevirtual java/io/PrintStream/println (Ljava/lang/String;)V)))
+      (return)))))

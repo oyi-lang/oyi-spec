@@ -1,3 +1,7 @@
 # phoron_asm
 
-This project provides a [Jasmin](https://jasmin.sourceforge.net/) compatible implementation of a JVM bytecode Assembler/Disassembler.
+This project defines `Phoron`, a new [S-expression](https://en.wikipedia.org/wiki/S-expression) based assembly format for the [JVM Instruction Set.](https://docs.oracle.com/javase/specs/jvms/se19/html/jvms-6.html).
+
+For the specification, please refer to the [specification document](doc/Specification.md).
+
+For the testable grammar for `Phoron`, please refer to the [grammar](doc/grammar/Grammar.md).

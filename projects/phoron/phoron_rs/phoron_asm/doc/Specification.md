@@ -100,6 +100,8 @@ additional features have been/will be added.
 
 Source: https://github.com/davidar/jasmin/blob/master/docs/syntax.bnf
 
+For a testable grammar implementation (in PEG format), please refer to the [grammar document](../grammar/phoron.peg).
+
 
 ## Statements
 

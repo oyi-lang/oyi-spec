@@ -1,0 +1,344 @@
+JasminProgram <- Header eof
+
+Header <- ClassDecl SuperDecl FieldDecl* MethodDecl*
+
+## Classes
+
+ClassDecl <- CLASS_keyword ClassAccessFlag* Name 
+ClassAccessFlag <- PUBLIC_keyword / FINAL_keyword / SUPER_keyword 
+                / INTERFACE_keyword / ABSTRACT_keyword / SYNTHETIC_keyword 
+                / ANNOTATION_keyword / ENUM_keyword / MODULE_keyword
+
+SuperDecl <- SUPER_keyword Name
+
+## Names
+
+Name <- <[a-zA-Z_<] [a-zA-Z0-9$<>/_]*> skip  { printf("name = %s\n", yytext); }
+
+## Fields
+
+FieldDecl <- FIELD_keyword FieldAccessFlag* Name FieldTypeDescriptor (EQUAL_symbol FieldDefaultValue)?
+FieldAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / PROTECTED_keyword / STATIC_keyword / FINAL_keyword / VOLATILE_keyword / TRANSIENT_keyword / SYNTHETIC_keyword / ENUM_keyword
+
+FieldTypeDescriptor <- FieldType skip
+FieldType <- BaseType / ObjectType / ArrayType
+BaseType <- 'B' / 'C' / 'D' / 'F' / 'I' / 'J' / 'S' / 'Z'
+ObjectType <- 'L' Name SEMICOLON_symbol
+ArrayType <- LEFT_BRACKET_symbol ComponentType
+ComponentType <- FieldType
+
+FieldDefaultValue <- Float/ Integer / QuotedString
+
+## Methods
+
+MethodDecl <- METHOD_keyword MethodAccessFlag* Name MethodDescriptor Statement* END_keyword METHOD_END_keyword
+
+MethodAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / PROTECTED_keyword / STATIC_keyword 
+                / FINAL_keyword / SYNCHRONIZED_keyword / BRIDGE_keyword / VARARGS_keyword 
+                / NATIVE_leyword / ABSTRACT_keyword / STRICT_keyword / SYNTHETIC_keyword
+
+MethodDescriptor <- LEFT_PAREN_symbol ParameterDescriptor* RIGHT_PAREN_symbol ReturnDescriptor skip
+ParameterDescriptor <- FieldType
+ReturnDescriptor <- FieldType / VoidDescriptor
+VoidDescriptor <- 'V'
+
+Statement <- (Directive / Instruction / Label COLON_symbol) newline
+Directive <- StackDirective / LocalsDirective / ThrowsDirective / CatchDirective
+StackDirective <- LIMIT_keyword STACK_keyword Integer
+LocalsDirective <- LIMIT_keyword LOCALS_keyword Integer
+ThrowsDirective <- THROWS_keyword Name 
+CatchDirective <- CATCH_keyword Name FROM_keyword Label TO_keyword Label USING_keyword Label
+
+Instruction <- <ComplexInstruction / SimpleInstruction> {  printf("Instruction = %s\n", yytext); }
+
+SimpleInstruction <- Ins Integer Integer
+                 / Ins Integer
+                 / Ins QuotedString
+                 / Ins Word Word
+                 / Ins Word
+                 / Ins
+
+Word <- whitespace ([_a-zA-Z<] [_a-zA-Z0-9$<>()/;]*) whitespace
+
+Ins <- 'aaload' whitespace
+      / 'aastore' whitespace
+      / 'aconst_null' whitespace
+      / 'aload_0' whitespace
+      / 'aload_1'   whitespace
+      / 'aload_2'   whitespace
+      / 'aload_3'   whitespace
+      / 'aload'   whitespace
+      / 'anewarray'   whitespace
+      / 'areturn'   whitespace
+      / 'arraylength'   whitespace
+      / 'astore_0'   whitespace
+      / 'astore_1'   whitespace
+      / 'astore_2'   whitespace
+      / 'astore_3'   whitespace
+      / 'astore'   whitespace
+      / 'athrow'   whitespace
+      / 'baload'   whitespace
+      / 'bastore'   whitespace
+      / 'bipush'   whitespace
+      / 'breakpoint'   whitespace
+      / 'caload'   whitespace
+      / 'castore'   whitespace
+      / 'checkcast'   whitespace
+      / 'd2f'   whitespace
+      / 'd2i'   whitespace
+      / 'd2l'   whitespace
+      / 'dadd'   whitespace
+      / 'daload'   whitespace
+      / 'dastore'   whitespace
+      / 'dcmpg'   whitespace
+      / 'dcmpl'   whitespace
+      / 'dconst_0'   whitespace
+      / 'dconst_1'   whitespace
+      / 'ddiv'   whitespace
+      / 'dload_0'   whitespace
+      / 'dload_1'   whitespace
+      / 'dload_2'   whitespace
+      / 'dload_3'   whitespace
+      / 'dload'   whitespace
+      / 'dmul'   whitespace
+      / 'dneg'   whitespace
+      / 'drem'   whitespace
+      / 'dreturn'   whitespace
+      / 'dstore_0'   whitespace
+      / 'dstore_1'   whitespace
+      / 'dstore_2'   whitespace
+      / 'dstore_3'   whitespace
+      / 'dstore'   whitespace
+      / 'dsub'   whitespace
+      / 'dup2_x1'   whitespace
+      / 'dup2_x2'   whitespace
+      / 'dup_x1'   whitespace
+      / 'dup_x2'   whitespace
+      / 'dup2'   whitespace
+      / 'dup'   whitespace
+      / 'f2d'   whitespace
+      / 'f2i'   whitespace
+      / 'f2l'   whitespace
+      / 'fadd'   whitespace
+      / 'faload'   whitespace
+      / 'fastore'   whitespace
+      / 'fcmpg'   whitespace
+      / 'fcmpl'   whitespace
+      / 'fconst_0'   whitespace
+      / 'fconst_1'   whitespace
+      / 'fconst_2'   whitespace
+      / 'fdiv'   whitespace
+      / 'fload_0'   whitespace
+      / 'fload_1'   whitespace
+      / 'fload_2'   whitespace
+      / 'fload_3'   whitespace
+      / 'fload'   whitespace
+      / 'fmul'   whitespace
+      / 'fneg'   whitespace
+      / 'frem'   whitespace
+      / 'freturn'   whitespace
+      / 'fstore'   whitespace
+      / 'fstore_0'   whitespace
+      / 'fstore_1'   whitespace
+      / 'fstore_2'   whitespace
+      / 'fstore_3'   whitespace
+      / 'fsub'   whitespace
+      / 'getfield'   whitespace
+      / 'getstatic'   whitespace
+      / 'goto'   whitespace
+      / 'goto_w'   whitespace
+      / 'i2b'   whitespace
+      / 'i2c'   whitespace
+      / 'i2d'   whitespace
+      / 'i2f'   whitespace
+      / 'i2l'   whitespace
+      / 'i2s'   whitespace
+      / 'iadd'   whitespace
+      / 'iaload'   whitespace
+      / 'iand'   whitespace
+      / 'iastore'   whitespace
+      / 'iconst_0'   whitespace
+      / 'iconst_1'   whitespace
+      / 'iconst_2'   whitespace
+      / 'iconst_3'   whitespace
+      / 'iconst_4'   whitespace
+      / 'iconst_5'   whitespace
+      / 'iconst_m1'   whitespace
+      / 'idiv'   whitespace
+      / 'if_acmpeq'   whitespace
+      / 'if_acmpne'   whitespace
+      / 'if_icmpeq'   whitespace
+      / 'if_icmpge'   whitespace
+      / 'if_icmpgt'   whitespace
+      / 'if_icmple'   whitespace
+      / 'if_icmplt'   whitespace
+      / 'if_icmpne'   whitespace
+      / 'ifeq'   whitespace
+      / 'ifge'   whitespace
+      / 'ifgt'   whitespace
+      / 'ifle'   whitespace
+      / 'iflt'   whitespace
+      / 'ifne'   whitespace
+      / 'ifnonnull'   whitespace
+      / 'ifnull'   whitespace
+      / 'iinc'   whitespace
+      / 'iload_0'   whitespace
+      / 'iload_1'   whitespace
+      / 'iload_2'   whitespace
+      / 'iload_3'   whitespace
+      / 'iload'   whitespace
+      / 'impdep1'   whitespace
+      / 'impdep2'   whitespace
+      / 'imul'   whitespace
+      / 'ineg'   whitespace
+      / 'instanceof'   whitespace
+      / 'invokevirtual'   whitespace
+      / 'invokestatic'   whitespace
+      / 'invokespecial'   whitespace
+      / 'invokeinterface'   whitespace
+      / 'invokedynamic'   whitespace
+      / 'ior'   whitespace
+      / 'irem'   whitespace
+      / 'ireturn'   whitespace
+      / 'ishl'   whitespace
+      / 'ishr'   whitespace
+      / 'istore_0'   whitespace
+      / 'istore_1'   whitespace
+      / 'istore_2'   whitespace
+      / 'istore_3'   whitespace
+      / 'istore'   whitespace
+      / 'isub'   whitespace
+      / 'iushr'   whitespace
+      / 'ixor'   whitespace
+      / 'jsr'   whitespace
+      / 'jsr_w'   whitespace
+      / 'l2d'   whitespace
+      / 'l2f'   whitespace
+      / 'l2i'   whitespace
+      / 'ladd'   whitespace
+      / 'laload'   whitespace
+      / 'land'   whitespace
+      / 'lastore'   whitespace
+      / 'lcmp'   whitespace
+      / 'lconst_0'   whitespace
+      / 'lconst_1'   whitespace
+      / 'ldc'   whitespace
+      / 'ldc2_w'   whitespace
+      / 'ldc_w'   whitespace
+      / 'ldiv'   whitespace
+      / 'lload_0'   whitespace
+      / 'lload_1'   whitespace
+      / 'lload_2'   whitespace
+      / 'lload_3'   whitespace
+      / 'lload'   whitespace
+      / 'lmul'   whitespace
+      / 'lneg'   whitespace
+      / 'lor'   whitespace
+      / 'lrem'   whitespace
+      / 'lreturn'   whitespace
+      / 'lshl'   whitespace
+      / 'lshr'   whitespace
+      / 'lstore_0'   whitespace
+      / 'lstore_1'   whitespace
+      / 'lstore_2'   whitespace
+      / 'lstore_3'   whitespace
+      / 'lstore'   whitespace
+      / 'lsub'   whitespace
+      / 'lushr'   whitespace
+      / 'lxor'   whitespace
+      / 'monitorenter'   whitespace
+      / 'monitorexit'   whitespace
+      / 'multianewarray'   whitespace
+      / 'new'   whitespace
+      / 'newarray'   whitespace
+      / 'nop'   whitespace
+      / 'pop'   whitespace
+      / 'pop2'   whitespace
+      / 'putfield'   whitespace
+      / 'putstatic'   whitespace
+      / 'return'   whitespace
+      / 'ret'   whitespace
+      / 'saload'   whitespace
+      / 'sastore'   whitespace
+      / 'sipush'   whitespace
+      / 'swap'   whitespace
+      / 'wide'   whitespace
+
+ComplexInstruction <- LookupSwitch/ TableSwitch
+
+LookupSwitch <- LOOKUP_SWITCH_keyword #LookupSwitchPair* DefaultSwitchPair?
+LookupSwitchPair <- Integer COLON_symbol Label 
+DefaultSwitchPair <- DEFAULT_keyword COLON_symbol Label
+TableSwitch <- TABLE_SWITCH_keyword Low High newline LabelLine* DefaultSwitchPair*
+Low <- Integer
+High <- Integer
+LabelLine <- Label
+
+Label <- whitespace [a-zA-Z_] [a-zA-Z0-9$_]* whitespace  
+
+Integer <- [0-9]+ whitespace 
+Float <- [0-9]+ DOT_symbol [0-9]+ whitespace
+QuotedString <- DOUBLE_QUOTE_symbol [^\"]* DOUBLE_QUOTE_symbol whitespace
+
+## Keywords
+
+CLASS_keyword          <-  '.class'        whitespace
+SUPER_keyword          <-  '.super'        whitespace
+FIELD_keyword          <-  '.field'        whitespace
+METHOD_keyword         <-  '.method'       whitespace
+LIMIT_keyword          <-  '.limit'        whitespace
+THROWS_keyword         <-  '.throws'       whitespace
+CATCH_keyword          <-  '.catch'        whitespace
+END_keyword            <-  '.end'          whitespace
+METHOD_END_keyword     <-  'method'        whitespace
+LOOKUP_SWITCH_keyword  <-  'lookupswitch'  whitespace
+TABLE_SWITCH_keyword   <-  'tableswitch'   whitespace
+ABSTRACT_keyword       <-  'abstract'      whitespace
+ANNOTATION_keyword     <-  'annotation'    whitespace
+BRIDGE_keyword         <-  'bridge'        whitespace
+DEFAULT_keyword        <-  'default'       whitespace
+ENUM_keyword           <-  'enum'          whitespace
+FINAL_keyword          <-  'final'         whitespace
+FROM_keyword           <-  'from'          whitespace
+INTERFACE_keyword      <-  'interface'     whitespace
+LOCALS_keyword         <-  'locals'        whitespace
+MODULE_keyword         <-  'module'        whitespace
+NATIVE_leyword         <-  'native'        whitespace
+PRIVATE_keyword        <-  'private'       whitespace
+PROTECTED_keyword      <-  'protected'     whitespace
+PUBLIC_keyword         <-  'public'        whitespace
+STATIC_keyword         <-  'static'        whitespace
+STACK_keyword          <-  'stack'         whitespace
+STRICT_keyword         <-  'strict'        whitespace
+SYNCHRONIZED_keyword   <-  'synchronized'  whitespace
+SYNTHETIC_keyword      <-  'synthetic'     whitespace
+TO_keyword             <-  'to'            whitespace
+TRANSIENT_keyword      <-  'transient'     whitespace
+USING_keyword          <-  'using'         whitespace
+VARARGS_keyword        <-  'varargs'       whitespace
+VOLATILE_keyword       <-  'volatile'      whitespace
+
+
+keyword <- CLASS_keyword / SUPER_keyword / FIELD_keyword / METHOD_keyword / LIMIT_keyword / THROWS_keyword / CATCH_keyword / END_keyword / METHOD_END_keyword 
+          / LOOKUP_SWITCH_keyword / TABLE_SWITCH_keyword / / ANNOTATION_keyword / BRIDGE_keyword / DEFAULT_keyword / ENUM_keyword / FINAL_keyword 
+          / FROM_keyword / INTERFACE_keyword / LOCALS_keyword / MODULE_keyword / NATIVE_leyword / PRIVATE_keyword / PROTECTED_keyword / PUBLIC_keyword 
+          / STATIC_keyword / STACK_keyword / STRICT_keyword / SYNCHRONIZED_keyword / SYNTHETIC_keyword / TO_keyword / TRANSIENT_keyword / USING_keyword 
+          / VARARGS_keyword / VOLATILE_keyword 
+
+## Symbols
+
+COLON_symbol         <-  ':'  skip
+DOT_symbol           <-  '.'  skip
+DOUBLE_QUOTE_symbol  <-  '"'  skip
+EQUAL_symbol         <-  '='  skip
+LEFT_BRACKET_symbol  <-  '['  skip
+LEFT_PAREN_symbol    <-  '('  skip
+RIGHT_PAREN_symbol   <-  ')'  skip
+SEMICOLON_symbol     <-  ';'  skip
+
+## markers
+
+newline <- ['\n']*
+whitespace <- [ \t]*
+skip <- [ \t\n]*
+eof <- !.

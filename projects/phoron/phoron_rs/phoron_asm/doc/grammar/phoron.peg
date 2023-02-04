@@ -1,0 +1,155 @@
+# The Grammar for the Phoron Assembly Format
+
+PhoronRoot <- ClassDef eof
+
+## Classes and interfaces
+
+ClassDef <- 
+    LPAREN_symbol DEFCLASS_keyword ClassName 
+      AccessFlags? 
+      SuperDef
+      ImplementsDef* 
+      FieldDef*
+      MethodDef* 
+      RPAREN_symbol
+
+AccessFlags <- LPAREN_symbol ACCESS_FLAGS_keyword AccessFlagList RPAREN_symbol
+AccessFlagList <- LPAREN_symbol AccessFlag+ RPAREN_symbol
+AccessFlag <- PUBLIC_keyword / PRIVATE_keyword / STATIC_keyword
+
+SuperDef <- LPAREN_symbol SUPER_keyword ClassName RPAREN_symbol
+ImplementsDef <- LPAREN_symbol IMPLEMENTS_keyword ClassName  RPAREN_symbol
+
+ClassName <- [a-zA-Z_][a-zA-Z0-9_$/]* skip
+
+## Fields
+
+FieldDef <- 
+    LPAREN_symbol DEFFIELD_keyword FieldName
+      FieldAccessFlags?
+      FieldDescriptor
+      FieldInitValue?
+      RPAREN_symbol
+
+FieldAccessFlags <- LPAREN_symbol FIELD_ACCESS_FLAG_keyword FieldAccessFLagList RPAREN_symbol
+FieldAccessFLagList <- LPAREN_symbol FieldAccessFLag+ RPAREN_symbol
+FieldAccessFLag <- PUBLIC_keyword / PRIVATE_keyword / STATIC_keyword / FINAL_keyword
+
+FieldName <- [a-zA-Z_][a-zA-Z0-9_/]* skip
+
+FieldDescriptor <- LPAREN_symbol FIELD_DESCRIPTOR_keyword FieldDescriptorDescriptor RPAREN_symbol
+FieldDescriptorDescriptor <- <FieldType> { printf("field type descriptor = %s\n", yytext); }
+
+FieldInitValue <-LPAREN_symbol FIELD_INIT_VALUE_keyword FieldInitValueValue RPAREN_symbol
+FieldInitValueValue <- Double / Integer / QuotedString
+
+## Methods
+
+MethodDef <- 
+    LPAREN_symbol DEFMETHOD_keyword MethodName 
+      MethodAccessFlags? 
+      MethodDescriptor
+      MethodDirectives?
+      MethodBody
+      RPAREN_symbol
+
+MethodAccessFlags <- 
+    LPAREN_symbol METHOD_ACCESS_FLAG_keyword MethodAccessFlagList RPAREN_symbol
+
+MethodAccessFlagList <- LPAREN_symbol MethodAccessFlag+ RPAREN_symbol
+MethodAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / STATIC_keyword
+
+MethodName <- [a-zA-Z_<][a-zA-Z0-9_$<>/]* skip
+
+MethodDescriptor <- LPAREN_symbol METHOD_DESCRIPTOR_keyword MethodDescriptorDescriptor RPAREN_symbol
+MethodDescriptorDescriptor <- <LPAREN_symbol ParameterDescriptor* RPAREN_symbol ReturnDescriptor> { printf("method descriptor = %s\n", yytext); }
+ParameterDescriptor <- FieldType
+FieldType <- BaseType / ObjectType / ArrayType
+BaseType <- 'B' / 'C' / 'D' / 'I' / 'J' / 'S' / 'Z'
+ObjectType <- 'L' ClassName ';'
+ArrayType <- '[' ComponentType 
+ComponentType <- FieldType
+ReturnDescriptor <- FieldType / VoidType
+VoidType <- 'V'
+
+MethodDirectives <- LPAREN_symbol METHOD_DIRECTIVES_keyword MethodDirectiveList RPAREN_symbol
+MethodDirectiveList <- LPAREN_symbol MethodDirective+ RPAREN_symbol
+MethodDirective <- LPAREN_symbol (StackLimitDirective / LocalsLimitDirective / ThrowsDirective) RPAREN_symbol
+StackLimitDirective <- STACK_LIMIT_keyword Integer
+LocalsLimitDirective <- LOCALS_LIMIT_keyword Integer
+ThrowsDirective <- THROWS_keyword ClassName
+
+MethodBody <- LPAREN_symbol METHOD_BODY_keyword MethodStatements RPAREN_symbol
+MethodStatements <- LPAREN_symbol MethodStatement* RPAREN_symbol
+MethodStatement <- LPAREN_symbol Instruction RPAREN_symbol skip
+Instruction <- 
+    ALOAD_0 
+    / ATHROW
+    / DUP
+    / GETSTATIC
+    / INVOKESPECIAL 
+    / INVOKEVIRTUAL
+    / LDC
+    / NEW
+    / POP
+    / TRY
+    / RETURN 
+
+## Instructions
+
+ALOAD_0        <-  'aload_0'        skip
+ATHROW         <-  'athrow'         skip
+DUP            <-  'dup'            skip
+GETSTATIC      <-  'getstatic'      skip              FieldName      FieldDescriptorDescriptor
+INVOKESPECIAL  <-  'invokespecial'  skip              MethodName     MethodDescriptorDescriptor
+INVOKEVIRTUAL  <-  'invokevirtual'  skip              MethodName     MethodDescriptorDescriptor
+LDC            <-  'ldc'            skip              QuotedString   skip
+NEW            <-  NEW_keyword      ClassName
+POP            <-  'pop'            skip
+RETURN         <-  'return'         skip
+TRY            <-  TRY_keyword      MethodStatements  CATCH_keyword  ClassName                   MethodStatements
+
+## Keywords
+
+ACCESS_FLAGS_keyword        <-  'access-flags'         skip
+CATCH_keyword               <-  'catch'                skip
+DEFCLASS_keyword            <-  'defclass'             skip
+DEFFIELD_keyword            <-  'deffield'             skip
+DEFMETHOD_keyword           <-  'defmethod'            skip
+FIELD_ACCESS_FLAG_keyword   <-  'field-access-flags'   skip
+FIELD_DESCRIPTOR_keyword    <-  'field-descriptor'     skip
+FIELD_INIT_VALUE_keyword    <-  'field-init-value'     skip
+FINAL_keyword               <-  'final'                skip
+IMPLEMENTS_keyword          <-  'implements'           skip
+LOCALS_LIMIT_keyword        <-  'locals-limit'         skip
+METHOD_ACCESS_FLAG_keyword  <-  'method-access-flags'  skip
+METHOD_BODY_keyword         <-  'method-body'          skip
+METHOD_DESCRIPTOR_keyword   <-  'method-descriptor'    skip
+METHOD_DIRECTIVES_keyword   <-  'method-directives'    skip
+NEW_keyword                 <-  'new'                  skip
+PRIVATE_keyword             <-  'private'              skip
+PUBLIC_keyword              <-  'public'               skip
+STACK_LIMIT_keyword         <-  'stack-limit'          skip
+STATIC_keyword              <-  'static'               skip
+SUPER_keyword               <-  'super'                skip
+THROWS_keyword              <-  'throws'               skip
+TRY_keyword                 <-  'try'                  skip
+
+## Terminals / Primitives
+
+Integer       <-  [0-9][0-9]*              skip
+Double        <-  [0-9]*                   DOT_symbol  [0-9]+               skip
+String        <-  [a-zA-Z_][a-zA-Z0-9_$]*  skip
+QuotedString  <-  <DOUBLE_QUOTE_symbol     [^\"]*      DOUBLE_QUOTE_symbol  skip>  {  printf("quoted  string  =  %s\n",  yytext);  }
+
+## Symbols
+
+DOUBLE_QUOTE_symbol  <-  '"'  skip
+DOT_symbol           <-  '.'  skip
+LPAREN_symbol        <-  '('  skip
+RPAREN_symbol        <-  ')'  skip
+SEMICOLON_symbol <- ';' skip
+
+newline <- '\n'
+skip <- [ \t\n]*
+eof <- !.
