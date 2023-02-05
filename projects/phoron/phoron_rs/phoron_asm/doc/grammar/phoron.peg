@@ -1,178 +1,197 @@
-# The Grammar for the Phoron Assembly Format
+# Jasmin-compatible Phoron Assembly Format.
+ 
+PhoronProgram <- Header eof
 
-PhoronRoot <- ClassDef eof
+Header <- ClassDef SuperDef FieldDef* MethodDef*
 
-## Classes and interfaces
+## Classes
 
-ClassDef <- 
-    LPAREN_symbol DEFCLASS_keyword ClassName 
-      AccessFlags? 
-      SuperDef
-      ImplementsDef* 
-      FieldDef*
-      MethodDef* 
-      RPAREN_symbol
-
-AccessFlags <- LPAREN_symbol ACCESS_FLAGS_keyword AccessFlagList RPAREN_symbol
-AccessFlagList <- LPAREN_symbol AccessFlag+ RPAREN_symbol
-AccessFlag <- PUBLIC_keyword / PRIVATE_keyword / STATIC_keyword
-
-SuperDef <- LPAREN_symbol SUPER_keyword ClassName RPAREN_symbol
-ImplementsDef <- LPAREN_symbol IMPLEMENTS_keyword ClassName  RPAREN_symbol
+ClassDef <- CLASS_keyword AccessFlag* ClassName newline
+AccessFlag <- PUBLIC_keyword / FINAL_keyword 
 
 ClassName <- [a-zA-Z_][a-zA-Z0-9_$/]* skip
 
+SuperDef <- SUPER_keyword ClassName newline
+
 ## Fields
 
-FieldDef <- 
-    LPAREN_symbol DEFFIELD_keyword FieldName
-      FieldAccessFlags?
-      FieldDescriptor
-      FieldInitValue?
-      RPAREN_symbol
-
-FieldAccessFlags <- LPAREN_symbol FIELD_ACCESS_FLAG_keyword FieldAccessFLagList RPAREN_symbol
-FieldAccessFLagList <- LPAREN_symbol FieldAccessFLag+ RPAREN_symbol
-FieldAccessFLag <- PUBLIC_keyword / PRIVATE_keyword / STATIC_keyword / FINAL_keyword
-
-FieldName <- [a-zA-Z_][a-zA-Z0-9_/]* skip
-
-FieldDescriptor <- LPAREN_symbol FIELD_DESCRIPTOR_keyword FieldDescriptorDescriptor RPAREN_symbol
-FieldDescriptorDescriptor <- <FieldType> { printf("field type descriptor = %s\n", yytext); }
-
-FieldInitValue <-LPAREN_symbol FIELD_INIT_VALUE_keyword FieldInitValueValue RPAREN_symbol
-FieldInitValueValue <- Double / Integer / QuotedString
+FieldDef <- FIELD_keyword FieldAccessFlag* FieldName FieldDescriptor (EQ_symbol FieldIniValue)? newline
+FieldAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / PROTECTED_keyword / STATIC_keyword / FINAL_keyword / VOLATILE_keyword / TRANSIENT_keyword
+FieldName <- [a-zA-Z_][a-zA-Z0-9_$/]* skip
+FieldDescriptor <- FieldType
+FieldType <- BaseType / ObjectType / ArrayType
+BaseType <- 'B' / 'C' / 'D' / 'F' / 'I' / 'J' / 'S' / 'Z'
+ObjectType <- 'L' ClassName ';'
+ArrayType <- '[' ComponentType
+ComponentType <- FieldType
+FieldIniValue <- Double / Integer / QuotedString
 
 ## Methods
 
 MethodDef <- 
-    LPAREN_symbol DEFMETHOD_keyword MethodName 
-      MethodAccessFlags? 
-      MethodDescriptor
-      MethodDirectives?
-      MethodBody
-      RPAREN_symbol
+    METHOD_keyword  MethodAccessFlag* MethodName MethodDescriptor newline
+      Instruction*
+    END_Keyword METHOD_END_keyword newline
 
-MethodAccessFlags <- 
-    LPAREN_symbol METHOD_ACCESS_FLAG_keyword MethodAccessFlagList RPAREN_symbol
-
-MethodAccessFlagList <- LPAREN_symbol MethodAccessFlag+ RPAREN_symbol
-MethodAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / STATIC_keyword
-
-MethodName <- [a-zA-Z_<][a-zA-Z0-9_$<>/]* skip
-
-MethodDescriptor <- LPAREN_symbol METHOD_DESCRIPTOR_keyword MethodDescriptorDescriptor RPAREN_symbol
-MethodDescriptorDescriptor <- <LPAREN_symbol ParameterDescriptor* RPAREN_symbol ReturnDescriptor> { printf("method descriptor = %s\n", yytext); }
+MethodName <- [a-zA-Z_<][a-zA-Z0-9_$/<>]* skip
+MethodAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / PROTECTED_keyword / STATIC_keyword / FINAL_keyword / SYNCHRONIZED_keyword / NATIVE_keyword / ABSTRACT_keyword
+MethodDescriptor <- LPAREN_symbol ParameterDescriptor* RPAREN_symbol ReturnDescriptor 
 ParameterDescriptor <- FieldType
-FieldType <- BaseType / ObjectType / ArrayType
-BaseType <- 'B' / 'C' / 'D' / 'I' / 'J' / 'S' / 'Z'
-ObjectType <- 'L' ClassName ';'
-ArrayType <- '[' ComponentType 
-ComponentType <- FieldType
 ReturnDescriptor <- FieldType / VoidType
 VoidType <- 'V'
 
-MethodDirectives <- LPAREN_symbol METHOD_DIRECTIVES_keyword MethodDirectiveList RPAREN_symbol
-MethodDirectiveList <- LPAREN_symbol MethodDirective+ RPAREN_symbol
-MethodDirective <- LPAREN_symbol (StackLimitDirective / LocalsLimitDirective / ThrowsDirective) RPAREN_symbol
-StackLimitDirective <- STACK_LIMIT_keyword Integer
-LocalsLimitDirective <- LOCALS_LIMIT_keyword Integer
+Instruction <- (Directive / JvmInstruction / Label) newline
+
+Directive <- (LIMIT_keyword (StackDirective / LocalDirective) / ThrowsDirective / CatchDirective) newline
+StackDirective <-  STACK_keyword Integer
+LocalDirective <- LOCAL_keyword Integer
 ThrowsDirective <- THROWS_keyword ClassName
+CatchDirective <- CATCH_keyword ClassName FROM_keyword Label TO_keyword Label USING_keyword Label
 
-MethodBody <- LPAREN_symbol METHOD_BODY_keyword MethodStatements RPAREN_symbol
-MethodStatements <- LPAREN_symbol MethodStatement+ RPAREN_symbol
-MethodStatement <- LPAREN_symbol Instruction RPAREN_symbol skip
-Instruction <- 
-    ALOAD_0 
-    / ATHROW
-    / DUP
-    / GETSTATIC
-    / ICONST_0
-    / ICONST_1
-    / ICONST_2
-    / ICONST_3
-    / ILOAD_1
-    / INVOKESPECIAL 
-    / INVOKEVIRTUAL
-    / IRETURN
-    / ISTORE_1
-    / LDC
-    / LOOKUPSWITCH
-    / NEW
-    / POP
-    / TRY
-    / RETURN 
+Label <- skip !Keyword [a-zA-Z_][a-zA-Z0-9_$:]* skip
 
-## Instructions
+JvmInstruction <- 
+    ALOAD_0
+  / ALOAD_1
+  / ALOAD_2
+  / ASTORE_1
+  / ASTORE_2
+  / ASTORE_3
+  / ATHROW
+  / BIPUSH
+  / CHECKCAST
+  / DUP
+  / RETURN
+  / GETFIELD
+  / GETSTATIC
+  / GOTO
+  / ICONST_0
+  / ICONST_1
+  / ICONST_2
+  / ICONST_3
+  / ILOAD_0
+  / ILOAD_1
+  / ILOAD_2
+  / INSTANCEOF
+  / IRETURN
+  / ISTORE_1
+  / ISTORE_2
+  / ISTORE_3
+  / JSR
+  / LDC
+  / LOOKUPSWITCH
+  / INVOKESPECIAL
+  / INVOKESTATIC
+  / INVOKEVIRTUAL
+  / MONITORENTER
+  / MONITOREXIT
+  / NEW
+  / POP
+  / RET
+  / RETURN
+  / SWAP
+  / TABLESWITCH
 
-ALOAD_0        <-  'aload_0'        skip
-ATHROW         <-  'athrow'         skip
-DUP            <-  'dup'            skip
-GETSTATIC      <-  'getstatic'      skip              FieldName      FieldDescriptorDescriptor
-ICONST_0 <- 'iconst_0' skip
-ICONST_1 <- 'iconst_1' skip
-ICONST_2 <- 'iconst_2' skip
-ICONST_3 <- 'iconst_3' skip
-ILOAD_1 <- 'iload_1' skip
-INVOKESPECIAL  <-  'invokespecial'  skip              MethodName     MethodDescriptorDescriptor
-INVOKEVIRTUAL  <-  'invokevirtual'  skip              MethodName     MethodDescriptorDescriptor
-IRETURN <- 'ireturn' skip
-ISTORE_1 <- 'istore_1' skip
-LDC            <-  'ldc'            skip              QuotedString   skip
+Integer <- skip [0-9][0-9]* skip
+Double <- skip [0-9]* DOT_symbol [0-9]+ skip
+QuotedString <- skip DOUBLE_QUOTE_symbol [^\"]* DOUBLE_QUOTE_symbol skip
 
-LOOKUPSWITCH <- LOOKUP_SWITCH_keyword LookupSwitchPairList
-LookupSwitchPairList <- LPAREN_symbol LookupSwitchPair* RPAREN_symbol
-LookupSwitchPair <- LPAREN_symbol (Integer / DEFAULT_keyword) MethodStatements RPAREN_symbol
-DefaultSwitchPair <- LPAREN_symbol DEFAULT_keyword MethodStatements RPAREN_symbol
 
-NEW            <-  NEW_keyword      ClassName
-POP            <-  'pop'            skip
-RETURN         <-  'return'         skip
-TRY            <-  TRY_keyword      MethodStatements  CATCH_keyword  ClassName                   MethodStatements
+## JVM Instructions
+
+ALOAD_0        <-  skip  'aload_0'        skip
+ALOAD_1        <-  skip  'aload_1'        skip
+ALOAD_2        <-  skip  'aload_2'        skip
+ASTORE_1       <-  skip  'astore_1'       skip
+ASTORE_2       <-  skip  'astore_2'       skip
+ASTORE_3       <-  skip  'astore_3'       skip
+ATHROW         <-  skip  'athrow'         skip
+BIPUSH         <-  skip  'bipush'         skip       Integer
+CHECKCAST      <-  skip  'checkcast'      skip       ClassName
+DUP            <-  skip  'dup'            skip
+GETFIELD       <-  skip  'getfield'       FieldName  FieldDescriptor
+GETSTATIC      <-  skip  'getstatic'      skip       FieldName        FieldDescriptor
+GOTO           <-  skip  'goto'           skip       Label
+ICONST_0       <-  skip  'iconst_0'       skip
+ICONST_1       <-  skip  'iconst_1'       skip
+ICONST_2       <-  skip  'iconst_2'       skip
+ICONST_3       <-  skip  'iconst_3'       skip
+ILOAD_0        <-  skip  'iload_0'        skip
+ILOAD_1        <-  skip  'iload_1'        skip
+ILOAD_2        <-  skip  'iload_2'        skip
+ILOAD_3        <-  skip  'iload_3'        skip
+INSTANCEOF     <-  skip  'instanceof'     skip       ClassName
+INVOKESPECIAL  <-  skip  'invokespecial'  skip       MethodName       MethodDescriptor
+INVOKESTATIC   <-  skip  'invokestatic'   skip       MethodName       MethodDescriptor
+INVOKEVIRTUAL  <-  skip  'invokevirtual'  skip       MethodName       MethodDescriptor
+IRETURN        <-  skip  'ireturn'        skip
+ISTORE_0       <-  skip  'istore_0'       skip
+ISTORE_1       <-  skip  'istore_1'       skip
+ISTORE_2       <-  skip  'istore_2'       skip
+ISTORE_3       <-  skip  'istore_3'       skip
+JSR            <-  skip  'jsr'            skip       Label
+LDC            <-  skip  'ldc'            skip       QuotedString
+MONITORENTER   <-  skip  'monitorenter'   skip
+MONITOREXIT    <-  skip  'monitorexit'    skip
+NEW            <-  skip  'new'            skip       ClassName
+POP            <-  skip  'pop'            skip
+RET            <-  skip  'ret'            skip       Integer
+RETURN         <-  skip  'return'         skip
+SWAP           <-  skip  'swap'           skip
+
+LOOKUPSWITCH <- skip 'lookupswitch' skip newline LookupSwitchPair* DefaultSwitchPair
+LookupSwitchPair <- Integer COLON_symbol Label newline
+DefaultSwitchPair <- DEFAULT_keyword COLON_symbol Label newline
+
+TABLESWITCH <- skip 'tableswitch' skip Low High newline TableSwitchSingleton* DefaultSwitchPair
+Low <- Integer
+High <- Integer
+TableSwitchSingleton <- Label newline
+
 
 ## Keywords
 
-ACCESS_FLAGS_keyword        <-  'access-flags'         skip
-CATCH_keyword               <-  'catch'                skip
-DEFAULT_keyword <- 'default' skip
-DEFCLASS_keyword            <-  'defclass'             skip
-DEFFIELD_keyword            <-  'deffield'             skip
-DEFMETHOD_keyword           <-  'defmethod'            skip
-FIELD_ACCESS_FLAG_keyword   <-  'field-access-flags'   skip
-FIELD_DESCRIPTOR_keyword    <-  'field-descriptor'     skip
-FIELD_INIT_VALUE_keyword    <-  'field-init-value'     skip
-FINAL_keyword               <-  'final'                skip
-IMPLEMENTS_keyword          <-  'implements'           skip
-LOCALS_LIMIT_keyword        <-  'locals-limit'         skip
-LOOKUP_SWITCH_keyword <- 'lookupswitch' skip
-METHOD_ACCESS_FLAG_keyword  <-  'method-access-flags'  skip
-METHOD_BODY_keyword         <-  'method-body'          skip
-METHOD_DESCRIPTOR_keyword   <-  'method-descriptor'    skip
-METHOD_DIRECTIVES_keyword   <-  'method-directives'    skip
-NEW_keyword                 <-  'new'                  skip
-PRIVATE_keyword             <-  'private'              skip
-PUBLIC_keyword              <-  'public'               skip
-STACK_LIMIT_keyword         <-  'stack-limit'          skip
-STATIC_keyword              <-  'static'               skip
-SUPER_keyword               <-  'super'                skip
-THROWS_keyword              <-  'throws'               skip
-TRY_keyword                 <-  'try'                  skip
+ABSTRACT_keyword      <-  skip  'abstract'      skip
+CLASS_keyword         <-  skip  '.class'        skip
+END_Keyword           <-  skip  '.end'          skip
+FIELD_keyword         <-  skip  '.field'        skip
+FINAL_keyword         <-  skip  'final'         skip
+LIMIT_keyword         <-  skip  '.limit'        skip
+LOCAL_keyword         <-  skip  'locals'        skip
+METHOD_END_keyword    <-  skip  'method'        skip
+METHOD_keyword        <-  skip  '.method'       skip
+NATIVE_keyword        <-  skip  'native'        skip
+PRIVATE_keyword       <-  skip  'private'       skip
+PROTECTED_keyword     <-  skip  'protected'     skip
+PUBLIC_keyword        <-  skip  'public'        skip
+STACK_keyword         <-  skip  'stack'         skip
+STATIC_keyword        <-  skip  'static'        skip
+SYNCHRONIZED_keyword  <-  skip  'synchronized'  skip
+THROWS_keyword        <-  skip  '.throws'       skip
+SUPER_keyword         <-  skip  '.super'        skip
+TRANSIENT_keyword     <-  skip  'transient'     skip
+VOLATILE_keyword      <-  skip  'volatile'      skip
+CATCH_keyword         <-  skip  '.catch'        skip
+FROM_keyword          <-  skip  'from'          skip
+TO_keyword            <-  skip  'to'            skip
+USING_keyword         <-  skip  'using'         skip
+DEFAULT_keyword       <-  skip  'default'       skip
 
-## Terminals / Primitives
+Keyword <- ABSTRACT_keyword / CLASS_keyword / END_Keyword / FIELD_keyword / FINAL_keyword / LIMIT_keyword / LOCAL_keyword 
+          / METHOD_END_keyword / METHOD_keyword / NATIVE_keyword / PRIVATE_keyword / PROTECTED_keyword 
+          / PUBLIC_keyword / STACK_keyword / STATIC_keyword / SYNCHRONIZED_keyword / THROWS_keyword / SUPER_keyword 
+          / TRANSIENT_keyword / VOLATILE_keyword / CATCH_keyword / FROM_keyword / TO_keyword / USING_keyword / DEFAULT_keyword
 
-Integer       <-  [0-9][0-9]*              skip
-Double        <-  [0-9]*                   DOT_symbol  [0-9]+               skip
-String        <-  [a-zA-Z_][a-zA-Z0-9_$]*  skip
-QuotedString  <-  <DOUBLE_QUOTE_symbol     [^\"]*      DOUBLE_QUOTE_symbol  skip>  {  printf("quoted  string  =  %s\n",  yytext);  }
 
 ## Symbols
 
-DOUBLE_QUOTE_symbol  <-  '"'  skip
-DOT_symbol           <-  '.'  skip
-LPAREN_symbol        <-  '('  skip
-RPAREN_symbol        <-  ')'  skip
-SEMICOLON_symbol <- ';' skip
+COLON_symbol         <-  skip  ':'  skip
+DOT_symbol           <-  skip  '.'  skip
+DOUBLE_QUOTE_symbol  <-  skip  '"'  skip
+EQ_symbol            <-  skip  '='  skip
+LPAREN_symbol        <-  skip  '('  skip
+RPAREN_symbol        <-  skip  ')'  skip
 
-newline <- '\n'
-skip <- [ \t\n]*
+skip <- [ \t]*
+newline <- [\n]*
 eof <- !.

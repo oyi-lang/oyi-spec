@@ -1,6 +1,6 @@
 # phoron_asm
 
-This project defines `Phoron`, a new [S-expression](https://en.wikipedia.org/wiki/S-expression) based assembly format for the [JVM Instruction Set.](https://docs.oracle.com/javase/specs/jvms/se19/html/jvms-6.html).
+This project defines `Phoron`, a new [Jasmin](https://jasmin.sourceforge.net/)-compatible assembly format for the [JVM Instruction Set.](https://docs.oracle.com/javase/specs/jvms/se19/html/jvms-6.html).
 
 For the specification, please refer to the [specification document](doc/Specification.md).
 
