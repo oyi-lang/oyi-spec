@@ -1,6 +1,6 @@
 # Jasmin-compatible Phoron Assembly Format.
  
-PhoronProgram <- Header eof
+PhoronProgram <- line_comment* Header eof
 
 Header <- ClassDef SuperDef FieldDef* MethodDef*
 
@@ -15,7 +15,7 @@ SuperDef <- SUPER_keyword ClassName newline
 
 ## Fields
 
-FieldDef <- FIELD_keyword FieldAccessFlag* FieldName FieldDescriptor (EQ_symbol FieldIniValue)? newline
+FieldDef <- line_comment* FIELD_keyword FieldAccessFlag* FieldName FieldDescriptor (EQ_symbol FieldIniValue)? newline
 FieldAccessFlag <- PUBLIC_keyword / PRIVATE_keyword / PROTECTED_keyword / STATIC_keyword / FINAL_keyword / VOLATILE_keyword / TRANSIENT_keyword
 FieldName <- [a-zA-Z_][a-zA-Z0-9_$/]* skip
 FieldDescriptor <- FieldType
@@ -28,7 +28,7 @@ FieldIniValue <- Double / Integer / QuotedString
 
 ## Methods
 
-MethodDef <- 
+MethodDef <- line_comment*
     METHOD_keyword  MethodAccessFlag* MethodName MethodDescriptor newline
       Instruction*
     END_Keyword METHOD_END_keyword newline
@@ -40,7 +40,7 @@ ParameterDescriptor <- FieldType
 ReturnDescriptor <- FieldType / VoidType
 VoidType <- 'V'
 
-Instruction <- (Directive / JvmInstruction / Label) newline
+Instruction <- line_comment* (Directive / JvmInstruction / Label) line_comment? newline
 
 Directive <- (LIMIT_keyword (StackDirective / LocalDirective) / ThrowsDirective / CatchDirective) newline
 StackDirective <-  STACK_keyword Integer
@@ -191,7 +191,9 @@ DOUBLE_QUOTE_symbol  <-  skip  '"'  skip
 EQ_symbol            <-  skip  '='  skip
 LPAREN_symbol        <-  skip  '('  skip
 RPAREN_symbol        <-  skip  ')'  skip
+SEMI_COLON_symbol    <-  skip  ';'  skip
 
+line_comment <- SEMI_COLON_symbol [^\n]* newline
 skip <- [ \t]*
 newline <- [\n]*
 eof <- !.

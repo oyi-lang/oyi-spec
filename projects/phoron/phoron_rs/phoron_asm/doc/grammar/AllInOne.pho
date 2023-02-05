@@ -1,13 +1,22 @@
+;; Showcasing all the salient features of Jasmin's assembly format.
+;; TODO - .interface, .source, .var, full instruction set specification
+
 .class public AllInOne
 .super java/lang/Thread
 
+; int x 
 .field private x I
-.field private y D = 1.2345
-.field public static final PREFIX Ljava/lang/String;
 
+; double d = 1.2345
+.field private y D = 1.2345
+
+; public static final String PREFIX = "FooBar";
+.field public static final PREFIX Ljava/lang/String; = "FooBar"
+
+; the constructor (default)
 .method public <init>()V
-  aload_0
-  invokespecial java/lang/Thread/<init>()V
+  aload_0 ; load `this`
+  invokespecial java/lang/Thread/<init>()V ; invoke the constructor
   return
 .end method
 
@@ -62,7 +71,7 @@ IOE:
 End2:
 
 Done:
-  jsr FinalSub
+  jsr FinalSub ; jump to the subroutine
   return
 
 Other_Exception:
@@ -72,7 +81,7 @@ Other_Exception:
   athrow
 
 FinalSub:
-  astore_3
+  astore_3 ; the return address
 
   getstatic java/lang/System/out Ljava/io/PrintStream;
   ldc "Done"
@@ -194,9 +203,10 @@ R4:
   ireturn
 .end method
 
+; the main method
 .method public static main([Ljava/lang/String;)V
-  .limit stack 2
-  .limit locals 3
+  .limit stack 2 ; maximum number of values on the operand stack
+  .limit locals 3 ; maximum number of local variables
   .throws java/lang/RuntimeException
 
   getstatic java/lang/System/out Ljava/io/PrintStream;
@@ -206,6 +216,8 @@ R4:
   invokestatic AllInOne/exceptionsDemo()V
   invokestatic AllInOne/finallyDemo()V
 
+  ; create a new instance of the AllInOne class
+  ; and store it in reference 1
   new AllInOne
   dup
   invokespecial AllInOne/<init>()V
@@ -226,6 +238,7 @@ R4:
   jsr PrintInt
   return
 
+; this is a subroutine
 PrintInt:
   astore_2
 
