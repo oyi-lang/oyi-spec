@@ -1,6 +1,7 @@
 ;; Showcasing all the salient features of Jasmin's assembly format.
-;; TODO - .interface, .source, .var, full instruction set specification
+;; TODO - full instruction set specification, and all access flags.
 
+.source AllInOne.j
 .class public AllInOne
 .super java/lang/Thread
 
@@ -201,6 +202,17 @@ R3:
 R4:
   iconst_0
   ireturn
+.end method
+
+.method private static varDemo()V
+  .limit locals 1
+  .var 0 is Count I from Label1 to Label2
+
+Label1:
+  bipush 10
+  istore_0
+Label2:
+  return
 .end method
 
 ; the main method

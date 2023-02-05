@@ -2,11 +2,14 @@
  
 PhoronProgram <- line_comment* Header eof
 
-Header <- ClassDef SuperDef FieldDef* MethodDef*
+Header <- SourceFileDef? (ClassDef /InterfaceDef)  SuperDef FieldDef* MethodDef*
+
+SourceFileDef <- SOURCE_keyword newline
 
 ## Classes
 
 ClassDef <- CLASS_keyword AccessFlag* ClassName newline
+InterfaceDef <- INTERFACE_keyword AccessFlag* ClassName newline
 AccessFlag <- PUBLIC_keyword / FINAL_keyword 
 
 ClassName <- [a-zA-Z_][a-zA-Z0-9_$/]* skip
@@ -42,11 +45,15 @@ VoidType <- 'V'
 
 Instruction <- line_comment* (Directive / JvmInstruction / Label) line_comment? newline
 
-Directive <- (LIMIT_keyword (StackDirective / LocalDirective) / ThrowsDirective / CatchDirective) newline
+Directive <- (LIMIT_keyword (StackDirective / LocalDirective) / ThrowsDirective / LineNumberDirective / VarDirective / CatchDirective) newline
 StackDirective <-  STACK_keyword Integer
 LocalDirective <- LOCAL_keyword Integer
 ThrowsDirective <- THROWS_keyword ClassName
+LineNumberDirective <- LINE_keyword Integer 
+VarDirective <- VAR_keyword Integer IS_keyword VarName FieldDescriptor FROM_keyword Label TO_keyword Label
 CatchDirective <- CATCH_keyword ClassName FROM_keyword Label TO_keyword Label USING_keyword Label
+
+VarName <- skip [a-zA-Z_][a-zA-Z0-9_$]* skip
 
 Label <- skip !Keyword [a-zA-Z_][a-zA-Z0-9_$:]* skip
 
@@ -54,6 +61,7 @@ JvmInstruction <-
     ALOAD_0
   / ALOAD_1
   / ALOAD_2
+  / ASTORE_0
   / ASTORE_1
   / ASTORE_2
   / ASTORE_3
@@ -72,8 +80,10 @@ JvmInstruction <-
   / ILOAD_0
   / ILOAD_1
   / ILOAD_2
+  / ILOAD_3
   / INSTANCEOF
   / IRETURN
+  / ISTORE_0
   / ISTORE_1
   / ISTORE_2
   / ISTORE_3
@@ -102,6 +112,7 @@ QuotedString <- skip DOUBLE_QUOTE_symbol [^\"]* DOUBLE_QUOTE_symbol skip
 ALOAD_0        <-  skip  'aload_0'        skip
 ALOAD_1        <-  skip  'aload_1'        skip
 ALOAD_2        <-  skip  'aload_2'        skip
+ASTORE_0       <-  skip  'astore_0'       skip
 ASTORE_1       <-  skip  'astore_1'       skip
 ASTORE_2       <-  skip  'astore_2'       skip
 ASTORE_3       <-  skip  'astore_3'       skip
@@ -152,11 +163,17 @@ TableSwitchSingleton <- Label newline
 ## Keywords
 
 ABSTRACT_keyword      <-  skip  'abstract'      skip
+CATCH_keyword         <-  skip  '.catch'        skip
 CLASS_keyword         <-  skip  '.class'        skip
+DEFAULT_keyword       <-  skip  'default'       skip
 END_Keyword           <-  skip  '.end'          skip
 FIELD_keyword         <-  skip  '.field'        skip
 FINAL_keyword         <-  skip  'final'         skip
+FROM_keyword          <-  skip  'from'          skip
+INTERFACE_keyword     <-  skip  '.interface'    skip
+IS_keyword <- skip 'is' skip
 LIMIT_keyword         <-  skip  '.limit'        skip
+LINE_keyword <- skip '.line' skip
 LOCAL_keyword         <-  skip  'locals'        skip
 METHOD_END_keyword    <-  skip  'method'        skip
 METHOD_keyword        <-  skip  '.method'       skip
@@ -164,23 +181,23 @@ NATIVE_keyword        <-  skip  'native'        skip
 PRIVATE_keyword       <-  skip  'private'       skip
 PROTECTED_keyword     <-  skip  'protected'     skip
 PUBLIC_keyword        <-  skip  'public'        skip
+SOURCE_keyword        <-  skip  '.source'       skip  FileName
 STACK_keyword         <-  skip  'stack'         skip
 STATIC_keyword        <-  skip  'static'        skip
+SUPER_keyword         <-  skip  '.super'        skip
 SYNCHRONIZED_keyword  <-  skip  'synchronized'  skip
 THROWS_keyword        <-  skip  '.throws'       skip
-SUPER_keyword         <-  skip  '.super'        skip
-TRANSIENT_keyword     <-  skip  'transient'     skip
-VOLATILE_keyword      <-  skip  'volatile'      skip
-CATCH_keyword         <-  skip  '.catch'        skip
-FROM_keyword          <-  skip  'from'          skip
 TO_keyword            <-  skip  'to'            skip
+TRANSIENT_keyword     <-  skip  'transient'     skip
 USING_keyword         <-  skip  'using'         skip
-DEFAULT_keyword       <-  skip  'default'       skip
+VAR_keyword <- skip '.var' skip
+VOLATILE_keyword      <-  skip  'volatile'      skip
 
 Keyword <- ABSTRACT_keyword / CLASS_keyword / END_Keyword / FIELD_keyword / FINAL_keyword / LIMIT_keyword / LOCAL_keyword 
           / METHOD_END_keyword / METHOD_keyword / NATIVE_keyword / PRIVATE_keyword / PROTECTED_keyword 
           / PUBLIC_keyword / STACK_keyword / STATIC_keyword / SYNCHRONIZED_keyword / THROWS_keyword / SUPER_keyword 
           / TRANSIENT_keyword / VOLATILE_keyword / CATCH_keyword / FROM_keyword / TO_keyword / USING_keyword / DEFAULT_keyword
+          / SOURCE_keyword / INTERFACE_keyword / LINE_keyword / VAR_keyword / IS_keyword
 
 
 ## Symbols
@@ -192,6 +209,8 @@ EQ_symbol            <-  skip  '='  skip
 LPAREN_symbol        <-  skip  '('  skip
 RPAREN_symbol        <-  skip  ')'  skip
 SEMI_COLON_symbol    <-  skip  ';'  skip
+
+FileName <- skip [a-zA-Z_][a-zA-Z0-9_.]* skip
 
 line_comment <- SEMI_COLON_symbol [^\n]* newline
 skip <- [ \t]*
