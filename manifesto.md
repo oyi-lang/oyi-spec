@@ -5,21 +5,11 @@ The JVM is the *first tier* for Oyi. Other platforms (native, LLVM, C et al) are
 Note: Not everything in this document has to be completed before starting the Oyi project itself, but the intent is to document not only the essentials for Oyi, but also for
 continuing an edificational journey into the world of Compilers (PLT covered elsewhere).
 
-## Projects
+## Prerequisites
 
-  * [JVM internals using Jasmin](projects/jvm-with-jasmin) [x]
+  * [JVM internals using Jasmin](prerequisites/jvm-with-jasmin) [x]
 
-  * [BASIC interpreter](projects/basic/basic_ocaml) [ ]
-  * [SimPL (OCaml)](projects/simpl/simpl_ocaml) [ ]
-
-  * [Phoron - JVM Bytecode Assembler](projects/phoron/phoron_rs) [ ] 
-
-  * [MiniML (OCaml)] (projects/miniml/minml_ocaml) [ ]
-  * [MiniML (Rust)] (projects/miniml/minml_rs) [ ]
-
-  * [MinCaml (OCaml)] (projects/mincaml/mincaml_ocaml) [ ]
-  * [MinCaml (Rust)] (projects/mincaml/mincaml_rs) [ ]
-
+  * [Phoron - JVM Bytecode Assembler](prerequisites/phoron/phoron_rs) [ ] 
 
 ## Resources
 

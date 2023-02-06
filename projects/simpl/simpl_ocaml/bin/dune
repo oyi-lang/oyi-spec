@@ -1,4 +1,0 @@
-(executable
- (public_name simpl_ocaml)
- (name main)
- (libraries simpl_ocaml))
