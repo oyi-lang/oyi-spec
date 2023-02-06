@@ -21,7 +21,7 @@
   aload_1
   instanceof [I ; check if the reference is an int array, 1 - yes, 0 - no
   invokevirtual java/io/PrintStream/println(I)V
-  
+
   bipush 10
   newarray char ; array of 10 chars
   astore_2
@@ -30,5 +30,6 @@
   aload_2
   instanceof [I
   invokevirtual java/io/PrintStream/println(I)V ; this should print 0
+
   return
 .end method

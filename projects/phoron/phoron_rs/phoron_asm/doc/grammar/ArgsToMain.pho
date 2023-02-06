@@ -15,10 +15,11 @@
 
   ; for non-static methods, local 0 is `this`, 
   ; and for static methods, its the first argument passed to it
-  
+
   getstatic java/lang/System/out Ljava/io/PrintStream;
   aload_0 ; load the args array
   arraylength ; store the length of this array on the stack
   invokevirtual java/io/PrintStream/println(I)V ; prints the number of args passed to main
+
   return
 .end method

@@ -22,7 +22,7 @@
 
   getstatic java/lang/System/out Ljava/io/PrintStream;
   aload_1
-  instanceof [[[r
+  instanceof [[[I
   invokevirtual java/io/PrintStream/println(I)V ; should print 1
   return
 .end method

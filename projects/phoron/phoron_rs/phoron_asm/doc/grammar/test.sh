@@ -1,8 +1,8 @@
 files=`ls *.pho`
 
+make -s clean
 for file in $files
 do
-  make -s clean
   make -s all
   echo -n "$file: "
   ./phoron < $file

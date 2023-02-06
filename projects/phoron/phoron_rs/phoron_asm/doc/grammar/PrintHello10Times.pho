@@ -14,11 +14,10 @@
   .limit locals 3 ; `this` is variable 0
 
   iconst_1
-  istore_1 ; i = 1
+  istore_1  ; i = 1
 
-  getstatic java/lang/System/out Ljava/io/PrintStream; 
+  getstatic java/lang/System/out Ljava/io/PrintStream;
   astore_2 ; out object
-
 loop:
   aload_2 ; load out
   iload_1 ; load i
@@ -33,5 +32,6 @@ loop:
   iload_1 ; load i
   bipush 10 ; load limit
   if_icmple loop ; loop if i <= limit
+
   return
 .end method

@@ -12,7 +12,7 @@
 .method private static addNums(II)I
   .limit stack 3
   .limit locals 3 ; the arguments count in the locals' count
-  
+
   ; calling convention - arg1 in 0, arg2 in 1 et al
   iload_0 ; load the first argument
   iload_1 ; load the second argument
@@ -31,3 +31,4 @@
   invokevirtual java/io/PrintStream/println(I)V
   return
 .end method
+

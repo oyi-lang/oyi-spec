@@ -12,7 +12,7 @@
 .method private static factorial(I)I
   .limit stack 3
   .limit locals 3
-  
+
   iconst_1
   istore_1 ; f = 1
   iconst_2

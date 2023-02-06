@@ -12,9 +12,9 @@
 .method private static sbDemo(Ljava/lang/Object;)V
   .limit stack 2
   .limit locals 2
-  
   ; local 0 contains the sb, cast it from 
   ; java.lang.Object to java.lang.StringBuffer
+
   aload_0
   ; this cast is required
   checkcast java/lang/StringBuffer
@@ -47,3 +47,5 @@
   invokevirtual java/io/PrintStream/println(Ljava/lang/String;)V
   return
 .end method
+
+
