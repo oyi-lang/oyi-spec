@@ -1,5 +1,4 @@
 ;; Showcasing all the salient features of Jasmin's assembly format.
-;; TODO - full instruction set specification, and all access flags.
 
 .source AllInOne.j
 .class public AllInOne
@@ -214,6 +213,7 @@ Label1:
 Label2:
   return
 .end method
+
 
 ; the main method
 .method public static main([Ljava/lang/String;)V
