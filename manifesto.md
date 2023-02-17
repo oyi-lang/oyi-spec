@@ -11,6 +11,7 @@ continuing an edificational journey into the world of Compilers (PLT covered els
 
   * [Phoron - JVM Bytecode Assembler](prerequisites/phoron/phoron_rs) [ ] 
 
+
 ## Resources
 
 ### Tooling
@@ -53,3 +54,9 @@ continuing an edificational journey into the world of Compilers (PLT covered els
   * [Memory Efficient Tail calls in the JVM with Imperative Functional Objects](https://i.cs.hku.hk/~bruno/papers/APLAS2015.pdf) [Tauber] [ ]
 
   * [Tail Call Elimination and Data Representation for Functional Languages on the Java Virtual Machine](https://flix.dev/paper/cc2018.pdf) [Madsen] [ ]
+
+
+## Specification
+
+See [Specification.md](doc/Specification.md).
+

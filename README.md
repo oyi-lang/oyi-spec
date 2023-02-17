@@ -1,9 +1,13 @@
-# oyi-manifesto
+# oyi-spec
 
-Manifesto and plan for working up to Oyi. 
+The specification of The Oyi Programming Language.
 
-Implementations in [projects](projects). 
+Also includes roadmaps for prerequisites, plans, and ideas leading up to the boot implementation of Oyi.
 
-Ideas in the [ideas](ideas) directory, possibly incorporated into Oyi, in which case they will be documented in the [spec](../oyi-spec] project).
+For the overall plan, refer to the [Manifesto](manifesto.md).
+
+For the discussion of ideas, refer to  the [Ideas](doc/Ideas.md) document.
+
+For the official specification, refer to the [Specification](doc]Specification.md).
 
 

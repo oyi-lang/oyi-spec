@@ -1,6 +1,0 @@
-[workspace]
-
-members = [
-  "phoron_core",
-  "phoron_asm"
-]
