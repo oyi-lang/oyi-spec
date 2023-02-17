@@ -1,1 +1,0 @@
-Working through the book, "Java Virtual Machine" by Troy Downing and Jon Meyer using the [Jasmin Java assembler]().

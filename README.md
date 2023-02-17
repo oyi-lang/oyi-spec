@@ -10,4 +10,8 @@ For the discussion of ideas, refer to  the [Ideas](doc/Ideas.md) document.
 
 For the official specification, refer to the [Specification](doc]Specification.md).
 
+## LICENCE
+
+See [LICENSE](LICENSE).
+
 

@@ -7,9 +7,11 @@ continuing an edificational journey into the world of Compilers (PLT covered els
 
 ## Prerequisites
 
-  * [JVM internals using Jasmin](prerequisites/jvm-with-jasmin) [x]
+  * JVM internals using Jasmin [x]
 
-  * [Phoron - JVM Bytecode Assembler](prerequisites/phoron/phoron_rs) [ ] 
+  * Phoron - JVM Bytecode Assembler [ ]
+      - [Serialize and Deserializer](https://github.com/oyi-lang/phoron_core)
+      - [Assembler/Disassembler](https://github.com/oyi-lang/phoron_asm)
 
 
 ## Resources
