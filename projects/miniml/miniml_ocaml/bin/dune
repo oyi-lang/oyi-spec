@@ -1,4 +1,0 @@
-(executable
- (public_name miniml_ocaml)
- (name main)
- (libraries miniml_ocaml))
