@@ -125,6 +125,7 @@ impl<'a, W: Write> Serializer<'a, W> {
                 self.writer.write_unsigned_byte(*tag)?;
                 self.writer.write_unsigned_short(*class_info_index)?;
             }
+
             ElementValue::EnumConstValue {
                 tag,
                 type_name_index,
@@ -137,7 +138,7 @@ impl<'a, W: Write> Serializer<'a, W> {
 
             ElementValue::AnnotationValue { tag, annotation } => {
                 self.writer.write_unsigned_byte(*tag)?;
-                self.serialize_annotation(annotation)?;
+                self.serialize_annotation(&annotation)?;
             }
 
             ElementValue::ArrayValue {

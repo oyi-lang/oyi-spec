@@ -7,7 +7,7 @@ pub mod constant_pool;
 use attributes::AttributeInfo;
 use constant_pool::types::CpInfo;
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ClassFile {
     pub magic: u32,
     pub minor_version: u16,
@@ -27,7 +27,7 @@ pub struct ClassFile {
     pub attributes: Vec<AttributeInfo>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct FieldInfo {
     pub access_flags: u16,
     pub name_index: u16,
@@ -36,7 +36,7 @@ pub struct FieldInfo {
     pub attributes: Vec<AttributeInfo>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct MethodInfo {
     pub access_flags: u16,
     pub name_index: u16,
@@ -66,4 +66,24 @@ pub mod access_flags {
     pub const ACC_ANNOTATION: u16 = 0x2000;
     pub const ACC_ENUM: u16 = 0x4000;
     pub const ACC_MODULE: u16 = 0x8000;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_classfile() {
+        let _cf = ClassFile::default();
+    }
+
+    #[test]
+    fn test_default_field_info() {
+        let _field_info = FieldInfo::default();
+    }
+
+    #[test]
+    fn test_default_method_info() {
+        let _field_info = MethodInfo::default();
+    }
 }

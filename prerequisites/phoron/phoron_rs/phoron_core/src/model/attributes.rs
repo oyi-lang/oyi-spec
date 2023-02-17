@@ -217,7 +217,7 @@ pub enum AttributeInfo {
     },
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct RecordComponentInfo {
     pub name_index: u16,
     pub descriptor_index: u16,
@@ -225,14 +225,14 @@ pub struct RecordComponentInfo {
     pub attributes: Vec<AttributeInfo>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Provide {
     pub provides_index: u16,
     pub provides_with_count: u16,
     pub provides_with_index: Vec<u16>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Open {
     pub opens_index: u16,
     pub opens_flags: u16,
@@ -240,7 +240,7 @@ pub struct Open {
     pub opens_to_index: Vec<u16>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Export {
     pub exports_index: u16,
     pub exports_flags: u16,
@@ -248,27 +248,27 @@ pub struct Export {
     pub exports_to_index: Vec<u16>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Require {
     pub requires_index: u16,
     pub requires_flags: u16,
     pub requires_version_index: u16,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Parameter {
     pub name_index: u16,
     pub access_flags: u16,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct BootstrapMethod {
     pub bootstrap_method_ref: u16,
     pub num_bootstrap_arguments: u16,
     pub bootstrap_arguments: Vec<u16>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub enum TargetInfo {
     TypeParameterTarget {
         type_parameter_index: u8,
@@ -280,6 +280,7 @@ pub enum TargetInfo {
         type_parameter_index: u8,
         bound_index: u8,
     },
+    #[default]
     EmptyTarget,
     FormalParameterTarget {
         formal_parameter_index: u8,
@@ -303,26 +304,26 @@ pub enum TargetInfo {
     },
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Path {
     pub type_path_kind: u8,
     pub type_argument_index: u8,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct TypePath {
     pub path_length: u8,
     pub path: Vec<Path>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct LocalVarEntry {
     pub start_pc: u16,
     pub length: u16,
     pub index: u16,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct TypeAnnotation {
     pub target_type: u8,
     pub target_info: TargetInfo,
@@ -332,7 +333,7 @@ pub struct TypeAnnotation {
     pub element_value_pairs: Vec<ElementValuePair>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct ParameterAnnotation {
     pub num_annotations: u16,
     pub annotations: Vec<Annotation>,
@@ -370,14 +371,14 @@ pub struct ElementValuePair {
     pub value: ElementValue,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Annotation {
     pub type_index: u16,
     pub num_element_value_pairs: u16,
     pub element_value_pairs: Vec<ElementValuePair>,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Class {
     pub inner_class_info_index: u16,
     pub outer_class_info_index: u16,
@@ -440,7 +441,7 @@ pub enum StackMapFrame {
     },
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct LocalVariableType {
     pub start_pc: u16,
     pub length: u16,
@@ -449,7 +450,7 @@ pub struct LocalVariableType {
     pub index: u16,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct ExceptionHandler {
     pub start_pc: u16,
     pub end_pc: u16,
@@ -457,13 +458,13 @@ pub struct ExceptionHandler {
     pub catch_type: u16,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct LineNumber {
     pub start_pc: u16,
     pub line_number: u16,
 }
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct LocalVariable {
     pub start_pc: u16,
     pub length: u16,
@@ -505,4 +506,99 @@ pub mod predefined_attributes {
     pub const NEST_MEMBERS: &'static str = "NestMembers";
     pub const RECORD: &'static str = "Record";
     pub const PERMITTED_SUBCLASSES: &'static str = "PermittedSubclasses";
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_default_rercord_component_info() {
+        let _rec_comp_info = RecordComponentInfo::default();
+    }
+
+    #[test]
+    fn test_default_provide() {
+        let _provide = Provide::default();
+    }
+
+    #[test]
+    fn test_default_open() {
+        let _open = Open::default();
+    }
+
+    #[test]
+    fn test_default_export() {
+        let _export = Export::default();
+    }
+
+    #[test]
+    fn test_default_require() {
+        let _require = Require::default();
+    }
+
+    #[test]
+    fn test_default_parameter() {
+        let _parameter = Parameter::default();
+    }
+
+    #[test]
+    fn test_default_bootstrapMethod() {
+        let _bootstrap_method = BootstrapMethod::default();
+    }
+
+    #[test]
+    fn test_default_path() {
+        let _path = Path::default();
+    }
+
+    #[test]
+    fn test_default_typePath() {
+        let _type_path = TypePath::default();
+    }
+
+    #[test]
+    fn test_default_localVarEntry() {
+        let _local_var_entry = LocalVarEntry::default();
+    }
+
+    #[test]
+    fn test_default_typeAnnotation() {
+        let _type_annotation = TypeAnnotation::default();
+    }
+
+    #[test]
+    fn test_default_parameterAnnotation() {
+        let _parameter_annotation = ParameterAnnotation::default();
+    }
+
+    #[test]
+    fn test_default_annotation() {
+        let _annot = Annotation::default();
+    }
+
+    #[test]
+    fn test_default_class() {
+        let _class = Class::default();
+    }
+
+    #[test]
+    fn test_default_localVariableType() {
+        let _local_var_type = LocalVariableType::default();
+    }
+
+    #[test]
+    fn test_default_exceptionHandler() {
+        let _exception_handler = ExceptionHandler::default();
+    }
+
+    #[test]
+    fn test_default_lineNumber() {
+        let _line_number = LineNumber::default();
+    }
+
+    #[test]
+    fn test_default_localVariable() {
+        let _local_var = LocalVariable::default();
+    }
 }
