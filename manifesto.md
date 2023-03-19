@@ -9,9 +9,9 @@ continuing an edificational journey into the world of Compilers (PLT covered els
 
   * JVM internals using Jasmin [x]
 
-  * Phoron - JVM Bytecode Assembler [ ]
+  * Phoron - JVM Bytecode Assembler [x]
       - [Serialize and Deserializer](https://github.com/oyi-lang/phoron_core)
-      - [Assembler/Disassembler](https://github.com/oyi-lang/phoron_asm)
+      - [Assembler](https://github.com/oyi-lang/phoron_asm)
 
 
 ## Resources
